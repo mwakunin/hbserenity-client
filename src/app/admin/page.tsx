@@ -67,7 +67,11 @@ export default async function AdminDashboardPage() {
         />
         <Stat
           label="Booked value"
-          value={formatMoney(stats.bookedValueCents, stats.currency)}
+          // One entry per currency. Summing across them would produce a
+          // number that is not money in any of them.
+          value={stats.bookedValue.length === 0
+            ? formatMoney(0, "KES")
+            : stats.bookedValue.map(v => formatMoney(v.cents, v.currency)).join(" + ")}
           // Deliberately not "revenue": these are agreed booking totals, not
           // money M-Pesa has settled.
           note="agreed totals for stays starting in this window"

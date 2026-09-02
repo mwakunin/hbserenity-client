@@ -142,6 +142,10 @@ export async function removeImage(propertyId: string, imageId: string) {
   try {
     await apiSend(`/property-images/${imageId}`, "DELETE");
     revalidatePath(`/admin/properties/${propertyId}`);
+    // The public page too, as attaching and setting a cover both do. A
+    // removed photo that keeps appearing to guests — possibly as the cover —
+    // is the one case where the stale copy is actively wrong.
+    revalidatePath(`/properties/${propertyId}`);
     return { status: "ok" as const };
   }
   catch (error) {

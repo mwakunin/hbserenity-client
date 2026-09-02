@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const TYPES = [
   { value: "", label: "All" },
@@ -35,7 +35,9 @@ export function PropertyFilters() {
   const type = params.get("propertyType") ?? "";
   const guests = params.get("minGuests") ?? "";
 
-  function apply(changes: Record<string, string>) {
+  // Memoised on `params` so the debounce below can depend on it without the
+  // timer being torn down and restarted on every render.
+  const apply = useCallback((changes: Record<string, string>) => {
     const next = new URLSearchParams(params.toString());
     for (const [key, value] of Object.entries(changes)) {
       if (value)
@@ -46,9 +48,18 @@ export function PropertyFilters() {
     // guest on an empty page 3 of a narrower result set.
     next.delete("page");
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
-  }
+  }, [params, pathname, router]);
 
-  // Debounced: typing "Diani" is five keystrokes and should be one request.
+  /*
+   * Debounced: typing "Diani" is five keystrokes and should be one request.
+   *
+   * `params` is a dependency, so the pending timer is always built from the
+   * current query string. Without it the effect keeps the params captured
+   * when it ran, and picking a property type mid-typing would have the timer
+   * rebuild the URL from the pre-click state and drop the type just chosen.
+   * The cost is that changing any filter restarts the text debounce, which is
+   * a 400ms delay rather than a lost filter.
+   */
   useEffect(() => {
     const timer = setTimeout(() => {
       if (town !== (params.get("town") ?? "") || county !== (params.get("county") ?? ""))
@@ -56,8 +67,7 @@ export function PropertyFilters() {
     }, 400);
 
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [town, county]);
+  }, [town, county, params, apply]);
 
   return (
     <div className="space-y-3">

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { getBookingStatus, payForBooking } from "@/app/(site)/bookings/[id]/actions";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,19 @@ export function CheckoutPayment({
   const router = useRouter();
   const [phone, setPhone] = useState(defaultPhone ?? "");
   const [prompted, setPrompted] = useState(false);
+  /**
+   * A prompt may be live that this page did not send.
+   *
+   * The API answers 409 when an attempt is already in flight, and 502 when it
+   * could not reach Safaricom — which is not proof that no prompt was
+   * delivered, which is why the API leaves the attempt pending rather than
+   * failing it. In both cases the guest's handset may be showing a PIN
+   * request right now. Showing the message and stopping would leave them
+   * paying while this page insisted nothing was happening, so it watches the
+   * booking instead. If the booking is genuinely no longer payable the first
+   * poll says so and polling stops on its own.
+   */
+  const [watching, setWatching] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   const pay = useMutation({
@@ -40,6 +53,11 @@ export function CheckoutPayment({
         router.push(`/sign-in?next=${encodeURIComponent(`/bookings/${bookingId}/checkout`)}`);
         return;
       }
+      if (result.status === "conflict") {
+        setWatching(true);
+        setMessage(result.message);
+        return;
+      }
       setMessage(result.message);
     },
     onError: () => setMessage("The payment could not be started. Please try again."),
@@ -51,15 +69,30 @@ export function CheckoutPayment({
   const booking = useQuery({
     queryKey: ["booking", bookingId],
     queryFn: () => getBookingStatus(bookingId),
-    enabled: prompted,
+    enabled: prompted || watching,
     refetchInterval: query =>
       query.state.data?.status === "pending_payment" ? 3000 : false,
   });
 
-  if (booking.data?.status === "confirmed") {
-    router.replace(`/bookings/${bookingId}`);
-    return null;
+  const confirmed = booking.data?.status === "confirmed";
+
+  // Navigation is a side effect, so it belongs in an effect and not in the
+  // render pass — calling router.replace() while rendering mutates the router
+  // during React's render, which React does not guarantee anything about.
+  useEffect(() => {
+    if (confirmed)
+      router.replace(`/bookings/${bookingId}`);
+  }, [confirmed, bookingId, router]);
+
+  if (confirmed) {
+    return (
+      <p className="rounded-lg bg-surface-container p-4 text-center text-sm text-on-surface">
+        Payment received. Taking you to your booking…
+      </p>
+    );
   }
+
+  const awaiting = prompted || watching;
 
   return (
     <div className="space-y-4">
@@ -107,12 +140,12 @@ export function CheckoutPayment({
           placeholder="07XX XXX XXX"
           value={phone}
           onChange={e => setPhone(e.target.value)}
-          disabled={prompted}
+          disabled={awaiting}
           className="mt-1 w-full rounded-md border border-outline-variant bg-surface px-3 py-2 text-sm text-on-surface disabled:opacity-60"
         />
       </label>
 
-      {!prompted
+      {!awaiting
         ? (
             <Button
               onClick={() => pay.mutate()}
@@ -125,7 +158,7 @@ export function CheckoutPayment({
         : (
             <div className="rounded-lg bg-surface-container p-4 text-center">
               <p className="text-sm font-medium text-on-surface">
-                Check your phone
+                {prompted ? "Check your phone" : "A payment may already be in progress"}
               </p>
               <p className="mt-1 text-xs text-on-surface-variant">
                 {message ?? "Enter your M-Pesa PIN to complete the payment."}
@@ -140,7 +173,7 @@ export function CheckoutPayment({
               */}
               <button
                 type="button"
-                onClick={() => { setPrompted(false); setMessage(null); }}
+                onClick={() => { setPrompted(false); setWatching(false); setMessage(null); }}
                 className="mt-3 text-xs text-primary underline"
               >
                 Nothing arrived? Try again
@@ -148,7 +181,7 @@ export function CheckoutPayment({
             </div>
           )}
 
-      {!prompted && message && <p className="text-xs text-error">{message}</p>}
+      {!awaiting && message && <p className="text-xs text-error">{message}</p>}
     </div>
   );
 }

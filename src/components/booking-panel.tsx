@@ -71,7 +71,16 @@ export function BookingPanel({
   const taken = (availability.data?.unavailable.length ?? 0) > 0;
 
   const reserve = useMutation({
-    mutationFn: () => createBooking({ propertyId, checkIn, checkOut, guestCount }),
+    // The debounced range, not the raw inputs. Those are what was quoted and
+    // what availability was checked against; changing a date and pressing
+    // Reserve inside the debounce window would otherwise book dates nobody
+    // priced and nobody checked, at the total shown for the old ones.
+    mutationFn: () => createBooking({
+      propertyId,
+      checkIn: range.checkIn,
+      checkOut: range.checkOut,
+      guestCount,
+    }),
     onSuccess: (result) => {
       setError(null);
 

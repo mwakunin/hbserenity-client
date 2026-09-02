@@ -40,10 +40,16 @@ export default async function PropertyPage({ params }: PageProps<"/properties/[i
     throw error;
   }
 
+  /*
+   * A failed request and a listing with no reviews are different answers.
+   * Collapsing both to null told every guest "no reviews yet" whenever the
+   * API was briefly unreachable, which quietly understates a listing that has
+   * good ones — and gives nobody a reason to try again.
+   */
   const reviews = await apiGet<"/properties/{id}/reviews">(
     `/properties/${id}/reviews?limit=3`,
     { revalidate: 60 },
-  ).catch(() => null);
+  ).then(data => ({ ok: true as const, data })).catch(() => ({ ok: false as const }));
 
   return (
     <article className="pb-28">
@@ -106,27 +112,33 @@ export default async function PropertyPage({ params }: PageProps<"/properties/[i
         <section className="mt-6">
           <div className="flex items-baseline justify-between">
             <h2 className="font-headline text-lg text-on-surface">Reviews</h2>
-            {reviews && reviews.summary.count > 0 && (
+            {reviews.ok && reviews.data.summary.count > 0 && (
               <p className="text-xs text-on-surface-variant">
                 ★
                 {" "}
-                {reviews.summary.averageRating?.toFixed(1)}
+                {reviews.data.summary.averageRating?.toFixed(1)}
                 {" · "}
-                {pluralise(reviews.summary.count, "review")}
+                {pluralise(reviews.data.summary.count, "review")}
               </p>
             )}
           </div>
 
-          {!reviews || reviews.summary.count === 0
+          {!reviews.ok
             ? (
                 <p className="mt-2 text-sm text-on-surface-variant">
-                  No reviews yet — only guests who have completed a stay here can
-                  leave one.
+                  Reviews could not be loaded just now. Refresh to try again.
                 </p>
               )
-            : (
+            : reviews.data.summary.count === 0
+              ? (
+                  <p className="mt-2 text-sm text-on-surface-variant">
+                    No reviews yet — only guests who have completed a stay here can
+                    leave one.
+                  </p>
+                )
+              : (
                 <ul className="mt-3 space-y-3">
-                  {reviews.data.map(review => (
+                  {reviews.data.data.map(review => (
                     <li
                       key={review.id}
                       className="rounded-lg bg-surface-container-lowest p-4 ring-1 ring-outline-variant/50"

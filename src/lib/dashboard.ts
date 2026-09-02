@@ -9,8 +9,9 @@ import { nightsBetween } from "./format";
  *
  * - **Booked value**, not revenue. It sums the totals of bookings that hold
  *   or held dates. A booking's total is snapshotted at reservation, so this is
- *   what was agreed, not what M-Pesa actually settled. Money received would
- *   mean reading payments, and there is no endpoint that lists them.
+ *   what was agreed, not what M-Pesa actually settled. Money received now has
+ *   an endpoint — `GET /admin/payments` returns totals for a window — and
+ *   this figure should be replaced by it rather than relabelled.
  *
  * - **Occupancy** counts booked nights against the nights on offer across the
  *   listings the API will show. That denominator is only the *active* ones —
@@ -73,9 +74,29 @@ export function summarise(
 
   const nightsOnOffer = activeProperties * nightsBetween(window.from, window.to);
 
-  const bookedValueCents = earning
-    .filter(b => b.checkIn >= window.from && b.checkIn < window.to)
-    .reduce((total, b) => total + b.totalAmountCents, 0);
+  /*
+   * Totalled per currency, never summed across them.
+   *
+   * `bookings.currency` is a column, defaulted to KES rather than fixed to
+   * it, so a second currency is a data change and not a code change. Adding
+   * cents across currencies produces a number that is not money in any of
+   * them, and labelling the result with whichever booking happened to sort
+   * first makes it look authoritative. One currency — which is every case
+   * today — renders exactly as before.
+   */
+  const byCurrency = new Map<string, number>();
+  for (const booking of earning) {
+    if (booking.checkIn < window.from || booking.checkIn >= window.to)
+      continue;
+    byCurrency.set(
+      booking.currency,
+      (byCurrency.get(booking.currency) ?? 0) + booking.totalAmountCents,
+    );
+  }
+
+  const bookedValue = [...byCurrency]
+    .map(([currency, cents]) => ({ currency, cents }))
+    .sort((a, b) => b.cents - a.cents);
 
   const upcoming = earning
     .filter(b => b.checkIn >= window.from && b.checkIn < window.to)
@@ -88,7 +109,6 @@ export function summarise(
     // Guarded: with no active listings the denominator is zero, and a NaN on a
     // dashboard reads as a bug rather than as "nothing published".
     occupancy: nightsOnOffer > 0 ? bookedNights / nightsOnOffer : null,
-    bookedValueCents,
-    currency: earning[0]?.currency ?? "KES",
+    bookedValue,
   };
 }

@@ -56,7 +56,15 @@ export default async function BookingPage({ params }: PageProps<"/bookings/[id]"
     { authenticated: true },
   ).catch(() => ({ data: [] }));
 
-  const paid = payments.data.some(p => p.status === "success");
+  /*
+   * `confirmed` is itself proof of payment: the API moves a booking there
+   * only from a settled M-Pesa success. Without it a failed payments request
+   * — which is caught just above and read as an empty list — would tell the
+   * cancel form the stay is unpaid, and it would stop asking for the reason
+   * that a paid cancellation is required to record.
+   */
+  const paid = booking.status === "confirmed"
+    || payments.data.some(p => p.status === "success");
   const copy = COPY[booking.status as keyof typeof COPY] ?? COPY.pending_payment;
   const nights = nightsBetween(booking.checkIn, booking.checkOut);
 
