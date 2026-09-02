@@ -35,19 +35,26 @@ export function CancelBooking({
     setBusy(true);
     setError(null);
 
-    const result = await cancelBooking(bookingId, reason.trim() || undefined);
-    setBusy(false);
+    try {
+      const result = await cancelBooking(bookingId, reason.trim() || undefined);
 
-    if (result.status === "ok") {
-      router.refresh();
-      setOpen(false);
-      return;
+      if (result.status === "ok") {
+        router.refresh();
+        setOpen(false);
+        return;
+      }
+      if (result.status === "unauthenticated") {
+        router.push(`/sign-in?next=${encodeURIComponent(`/bookings/${bookingId}`)}`);
+        return;
+      }
+      setError(result.message);
     }
-    if (result.status === "unauthenticated") {
-      router.push(`/sign-in?next=${encodeURIComponent(`/bookings/${bookingId}`)}`);
-      return;
+    catch {
+      setError("Something went wrong. Please try again.");
     }
-    setError(result.message);
+    finally {
+      setBusy(false);
+    }
   }
 
   if (!open) {
@@ -135,19 +142,26 @@ export function WriteReview({ bookingId }: { bookingId: string }) {
     setBusy(true);
     setError(null);
 
-    const result = await submitReview(bookingId, { rating, comment });
-    setBusy(false);
+    try {
+      const result = await submitReview(bookingId, { rating, comment });
 
-    if (result.status === "ok") {
-      setDone(true);
-      router.refresh();
-      return;
+      if (result.status === "ok") {
+        setDone(true);
+        router.refresh();
+        return;
+      }
+      if (result.status === "unauthenticated") {
+        router.push(`/sign-in?next=${encodeURIComponent(`/bookings/${bookingId}`)}`);
+        return;
+      }
+      setError(result.message);
     }
-    if (result.status === "unauthenticated") {
-      router.push(`/sign-in?next=${encodeURIComponent(`/bookings/${bookingId}`)}`);
-      return;
+    catch {
+      setError("Something went wrong. Please try again.");
     }
-    setError(result.message);
+    finally {
+      setBusy(false);
+    }
   }
 
   return (

@@ -71,22 +71,29 @@ export function CalendarView({ listings }: { listings: Listing[] }) {
     setBusy(true);
     setMessage(null);
 
-    const result = await createBlackout({ propertyId, startDate: start, endDate: end, reason });
-    setBusy(false);
+    try {
+      const result = await createBlackout({ propertyId, startDate: start, endDate: end, reason });
 
-    if (result.status === "ok") {
-      setStart("");
-      setEnd("");
-      setReason("");
-      await availability.refetch();
-      router.refresh();
-      return;
+      if (result.status === "ok") {
+        setStart("");
+        setEnd("");
+        setReason("");
+        await availability.refetch();
+        router.refresh();
+        return;
+      }
+      if (result.status === "unauthenticated") {
+        router.push("/sign-in?next=%2Fadmin%2Fcalendar");
+        return;
+      }
+      setMessage(result.message);
     }
-    if (result.status === "unauthenticated") {
-      router.push("/sign-in?next=%2Fadmin%2Fcalendar");
-      return;
+    catch {
+      setMessage("Something went wrong. Please try again.");
     }
-    setMessage(result.message);
+    finally {
+      setBusy(false);
+    }
   }
 
   if (listings.length === 0) {
@@ -126,9 +133,31 @@ export function CalendarView({ listings }: { listings: Listing[] }) {
           </span>
         </div>
 
+        {/*
+          A failed request must not render as an empty calendar. With no data
+          every night falls through to "free", which is the one answer a host
+          acts on — blocking dates, or promising a guest a stay — and it would
+          be indistinguishable from a property with nothing booked.
+        */}
         {availability.isPending
           ? <div className="mt-2 h-24 animate-pulse rounded-md bg-surface-container" />
-          : (
+          : availability.isError
+            ? (
+                <div className="mt-2 rounded-md bg-surface-container p-4 text-center">
+                  <p className="text-xs text-on-surface-variant">
+                    The calendar could not be loaded, so these nights are unknown —
+                    not free.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => availability.refetch()}
+                    className="mt-2 text-xs text-primary underline"
+                  >
+                    Try again
+                  </button>
+                </div>
+              )
+            : (
               <ol className="mt-2 grid grid-cols-10 gap-1">
                 {nights.map(night => (
                   <li

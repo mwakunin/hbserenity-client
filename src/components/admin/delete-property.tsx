@@ -24,21 +24,28 @@ export function DeleteProperty({ propertyId, title }: { propertyId: string; titl
   async function remove() {
     setBusy(true);
     setError(null);
-    const result = await deleteProperty(propertyId);
-    setBusy(false);
+    try {
+      const result = await deleteProperty(propertyId);
 
-    if (result.status === "blocked") {
-      setError(result.message);
-      setConfirming(false);
-      return;
-    }
-    if (result.status === "unauthenticated") {
-      router.push("/sign-in?next=%2Fadmin%2Fproperties");
-      return;
-    }
+      if (result.status === "blocked") {
+        setError(result.message);
+        setConfirming(false);
+        return;
+      }
+      if (result.status === "unauthenticated") {
+        router.push("/sign-in?next=%2Fadmin%2Fproperties");
+        return;
+      }
 
-    forgetDraft(propertyId);
-    router.push("/admin/properties");
+      forgetDraft(propertyId);
+      router.push("/admin/properties");
+    }
+    catch {
+      setError("Something went wrong. Please try again.");
+    }
+    finally {
+      setBusy(false);
+    }
   }
 
   return (

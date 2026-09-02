@@ -109,14 +109,26 @@ export function PhotoManager({
     }
   }
 
+  /** Shared by "make cover" and "remove", which differ only in the action. */
   async function act(fn: () => Promise<{ status: string; message?: string }>) {
     setBusy(true);
     setError(null);
-    const result = await fn();
-    setBusy(false);
-    if (result.status !== "ok")
-      setError(result.message ?? "That did not work.");
-    else router.refresh();
+
+    // Same shape as the upload above: a rejected action must not leave every
+    // photo control disabled with nothing on screen to explain it.
+    try {
+      const result = await fn();
+
+      if (result.status !== "ok")
+        setError(result.message ?? "That did not work.");
+      else router.refresh();
+    }
+    catch {
+      setError("Something went wrong. Please try again.");
+    }
+    finally {
+      setBusy(false);
+    }
   }
 
   return (

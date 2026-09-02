@@ -115,35 +115,46 @@ export function PropertyForm({
     setSaved(false);
 
     const payload = { ...form, bedrooms: studio ? 0 : form.bedrooms };
-    const result = propertyId
-      ? await updateProperty(propertyId, payload)
-      : await createProperty(payload);
 
-    setPending(false);
+    // A server action can reject as well as return a refusal — a dropped
+    // connection, or anything the action itself throws. Clearing `pending`
+    // only on the happy path leaves the button disabled with no message, and
+    // the host with a form they cannot submit or abandon.
+    try {
+      const result = propertyId
+        ? await updateProperty(propertyId, payload)
+        : await createProperty(payload);
 
-    if (result.status === "unauthenticated") {
-      router.push("/sign-in?next=%2Fadmin%2Fproperties");
-      return;
+      if (result.status === "unauthenticated") {
+        router.push("/sign-in?next=%2Fadmin%2Fproperties");
+        return;
+      }
+      if (result.status === "invalid") {
+        setError(result.message);
+        setField(result.field);
+        return;
+      }
+
+      if (propertyId) {
+        setSaved(true);
+        router.refresh();
+        return;
+      }
+
+      // A new listing defaults to `draft`, and the API's list endpoint returns
+      // active listings only — to anyone. Without the id it would be
+      // unreachable, so it is kept locally and the host is taken straight to it.
+      if (payload.status !== "active")
+        rememberDraft({ id: result.id, title: payload.title });
+
+      router.push(`/admin/properties/${result.id}`);
     }
-    if (result.status === "invalid") {
-      setError(result.message);
-      setField(result.field);
-      return;
+    catch {
+      setError("Something went wrong. Please try again.");
     }
-
-    if (propertyId) {
-      setSaved(true);
-      router.refresh();
-      return;
+    finally {
+      setPending(false);
     }
-
-    // A new listing defaults to `draft`, and the API's list endpoint returns
-    // active listings only — to anyone. Without the id it would be
-    // unreachable, so it is kept locally and the host is taken straight to it.
-    if (payload.status !== "active")
-      rememberDraft({ id: result.id, title: payload.title });
-
-    router.push(`/admin/properties/${result.id}`);
   }
 
   return (

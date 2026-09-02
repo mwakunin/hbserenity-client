@@ -3,18 +3,18 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import type { GetResponse } from "@/lib/api/client";
+
 import { recordRefund, runReconcile } from "@/app/admin/payments/actions";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatMoney } from "@/lib/format";
 
-interface AttentionItem {
-  paymentId: string;
-  bookingId: string;
-  amountCents: number;
-  reason: string;
-  detail: string | null;
-  createdAt: string;
-}
+/**
+ * Straight off the generated schema rather than restated here. A hand-written
+ * copy drifts silently: the API adding a `reason` the UI has no wording for,
+ * or renaming a field, would still typecheck against a local interface.
+ */
+type AttentionItem = GetResponse<"/admin/payments/attention">["data"][number];
 
 /** Written for a host, not a developer — these are the four states in plain words. */
 const REASON: Record<string, { title: string; body: string }> = {
@@ -44,20 +44,30 @@ export function AttentionList({ items }: { items: AttentionItem[] }) {
   async function reconcile() {
     setBusy(true);
     setSweep(null);
-    const result = await runReconcile();
-    setBusy(false);
+    try {
+      const result = await runReconcile();
 
-    if (result.status === "unauthenticated") {
-      router.push("/sign-in?next=%2Fadmin%2Fpayments");
-      return;
+      if (result.status === "unauthenticated") {
+        router.push("/sign-in?next=%2Fadmin%2Fpayments");
+        return;
+      }
+
+      const s = result.summary;
+      setSweep(
+        `Examined ${s.examined}: ${s.paid} paid, ${s.failed} failed, ${s.unresolved} still unresolved. `
+        + `${s.staysCompleted} stay${s.staysCompleted === 1 ? "" : "s"} marked completed.`,
+      );
+      router.refresh();
     }
-
-    const s = result.summary;
-    setSweep(
-      `Examined ${s.examined}: ${s.paid} paid, ${s.failed} failed, ${s.unresolved} still unresolved. `
-      + `${s.staysCompleted} stay${s.staysCompleted === 1 ? "" : "s"} marked completed.`,
-    );
-    router.refresh();
+    catch {
+      // The sweep talks to Safaricom, so it is the slowest thing on the page
+      // and the likeliest to time out. Leaving the button dead afterwards
+      // would suggest one is still running.
+      setSweep("The sweep could not be completed. Please try again.");
+    }
+    finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -114,23 +124,33 @@ function AttentionRow({ item }: { item: AttentionItem }) {
     setBusy(true);
     setError(null);
 
-    const result = await recordRefund(item.paymentId, {
-      amountCents: Math.round(Number(shillings)) * 100,
-      reason: reason.trim(),
-      mpesaReference: reference.trim(),
-    });
-    setBusy(false);
+    try {
+      const result = await recordRefund(item.paymentId, {
+        amountCents: Math.round(Number(shillings)) * 100,
+        reason: reason.trim(),
+        mpesaReference: reference.trim(),
+      });
 
-    if (result.status === "ok") {
-      setOpen(false);
-      router.refresh();
-      return;
+      if (result.status === "ok") {
+        setOpen(false);
+        router.refresh();
+        return;
+      }
+      if (result.status === "unauthenticated") {
+        router.push("/sign-in?next=%2Fadmin%2Fpayments");
+        return;
+      }
+      setError(result.message);
     }
-    if (result.status === "unauthenticated") {
-      router.push("/sign-in?next=%2Fadmin%2Fpayments");
-      return;
+    catch {
+      // Recording a refund is what clears money off this list, so a failure
+      // that left both buttons dead and said nothing is the worst place for
+      // one: the host cannot tell whether it was written down.
+      setError("Something went wrong. Please try again.");
     }
-    setError(result.message);
+    finally {
+      setBusy(false);
+    }
   }
 
   return (

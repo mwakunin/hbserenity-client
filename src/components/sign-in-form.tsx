@@ -32,11 +32,23 @@ export function SignInForm({ next }: { next: string }) {
     setPending(true);
     setError(null);
 
-    const result = mode === "in"
-      ? await signIn.email({ email, password })
-      : await signUp.email({ email, password, name });
-
-    setPending(false);
+    let result;
+    try {
+      result = mode === "in"
+        ? await signIn.email({ email, password })
+        : await signUp.email({ email, password, name });
+    }
+    catch {
+      // Better Auth returns errors in `result.error` rather than throwing, so
+      // reaching here means the request itself failed — offline, or the proxy
+      // to the API down. Without this the button stays disabled and the form
+      // cannot be submitted again.
+      setError("Something went wrong. Please try again.");
+      return;
+    }
+    finally {
+      setPending(false);
+    }
 
     if (result.error) {
       setError(result.error.message ?? "That did not work. Please check and try again.");

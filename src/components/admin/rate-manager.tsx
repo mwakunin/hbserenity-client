@@ -49,33 +49,62 @@ export function RateManager({
     setBusy(true);
     setError(null);
 
-    const result = await createRate({
-      propertyId,
-      startDate,
-      endDate,
-      pricePerNightCents: Math.round(Number(shillings)) * 100,
-      label: label.trim() || undefined,
-    });
+    try {
+      const result = await createRate({
+        propertyId,
+        startDate,
+        endDate,
+        pricePerNightCents: Math.round(Number(shillings)) * 100,
+        label: label.trim() || undefined,
+      });
 
-    setBusy(false);
+      if (result.status !== "ok") {
+        setError("message" in result ? result.message : "That could not be saved.");
+        return;
+      }
 
-    if (result.status !== "ok") {
-      setError("message" in result ? result.message : "That could not be saved.");
-      return;
+      setStart("");
+      setEnd("");
+      setShillings("");
+      setLabel("");
+      router.refresh();
     }
-
-    setStart("");
-    setEnd("");
-    setShillings("");
-    setLabel("");
-    router.refresh();
+    catch {
+      setError("Something went wrong. Please try again.");
+    }
+    finally {
+      setBusy(false);
+    }
   }
 
   async function remove(id: string) {
     setBusy(true);
-    await deleteRate(propertyId, id);
-    setBusy(false);
-    router.refresh();
+    setError(null);
+
+    try {
+      // The result was previously discarded and the page refreshed either
+      // way, so a refused delete — a signed-out session, an id the API will
+      // not accept — looked exactly like a successful one: the row came back
+      // on refresh with nothing said about why.
+      const result = await deleteRate(propertyId, id);
+
+      if (result.status === "unauthenticated") {
+        router.push(`/sign-in?next=${encodeURIComponent(`/admin/properties/${propertyId}`)}`);
+        return;
+      }
+      if (result.status !== "ok") {
+        setError("message" in result ? result.message : "That season could not be removed.");
+        return;
+      }
+
+      router.refresh();
+    }
+    catch {
+      setError("Something went wrong. Please try again.");
+    }
+    finally {
+      setBusy(false);
+    }
   }
 
   return (
