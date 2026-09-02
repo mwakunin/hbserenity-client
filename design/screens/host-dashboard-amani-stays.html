@@ -1,0 +1,204 @@
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "outline-variant": "#c3c6d1", "surface-container-low": "#f2f4f8", "on-surface": "#191c1f", "tertiary-fixed": "#ffdbcf", "surface": "#f7f9fd", "tertiary-fixed-dim": "#ffb59c", "inverse-primary": "#a7c8ff", "surface-bright": "#f7f9fd", "surface-container-highest": "#e0e2e6", "on-tertiary": "#ffffff", "primary": "#001e40", "surface-container": "#eceef2", "surface-container-lowest": "#ffffff", "on-secondary-fixed": "#1b1d0e", "on-error-container": "#93000a", "primary-container": "#003366", "on-primary-fixed-variant": "#1f477b", "secondary-fixed": "#e4e4cc", "on-surface-variant": "#43474f", "on-tertiary-fixed": "#380c00", "on-background": "#191c1f", "on-tertiary-container": "#f47749", "surface-tint": "#3a5f94", "surface-variant": "#e0e2e6", "background": "#f7f9fd", "surface-dim": "#d8dade", "secondary-container": "#e1e1c9", "inverse-surface": "#2d3134", "primary-fixed": "#d5e3ff", "on-secondary-fixed-variant": "#474836", "on-secondary-container": "#636451", "on-primary-container": "#799dd6", "tertiary-container": "#611b00", "primary-fixed-dim": "#a7c8ff", "outline": "#737780", "on-error": "#ffffff", "surface-container-high": "#e6e8ec", "secondary-fixed-dim": "#c8c8b0", "on-primary-fixed": "#001b3c", "error-container": "#ffdad6", "secondary": "#5e604d", "inverse-on-surface": "#eff1f5", "tertiary": "#3d0e00", "on-secondary": "#ffffff", "error": "#ba1a1a", "on-primary": "#ffffff", "on-tertiary-fixed-variant": "#822800" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "section-gap-sm": "32px", "section-gap-lg": "80px", "gutter": "16px", "container-margin-mobile": "20px", "container-margin-desktop": "80px" }, "fontFamily": { "body-lg": ["Montserrat"], "headline-md": ["Playfair Display"], "body-md": ["Montserrat"], "title-lg": ["Montserrat"], "display-lg": ["Playfair Display"], "label-md": ["Montserrat"], "headline-md-mobile": ["Playfair Display"], "label-sm": ["Montserrat"], "display-lg-mobile": ["Playfair Display"] } } } }</script><style>@layer base { body { -webkit-tap-highlight-color: transparent; } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-4 flex items-center justify-between"><div class="flex items-center gap-2"><button class="w-11 h-11 flex items-center justify-center text-on-surface" onclick="history.back()"><span class="material-symbols-outlined">arrow_back_ios_new</span></button><h1 class="text-title-lg font-title-lg text-primary truncate">Host Dashboard</h1></div><div class="flex items-center"><button class="w-11 h-11 flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">share</span></button></div></div></header><main class="relative w-full pt-16 min-h-screen bg-surface"><div class="flex flex-col w-full px-[20px] lg:px-[80px] gap-[32px] pb-[80px]">
+<!-- Hero / Header Section -->
+<section class="flex flex-col gap-[16px]">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Host Overview</p>
+<h2 class="text-display-lg-mobile md:text-display-lg text-primary font-display-lg-mobile md:font-display-lg">Dashboard</h2>
+</div>
+<div class="hidden md:flex gap-[16px]">
+<button class="bg-surface text-primary border-2 border-primary px-4 py-2 rounded-lg text-label-md font-label-md flex items-center gap-2 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">calendar_month</span>
+                    View Calendar
+                </button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg text-label-md font-label-md flex items-center gap-2 hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                    Add New Property
+                </button>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant font-body-md max-w-2xl">
+            Welcome back. Here's a snapshot of your properties' performance and upcoming activities.
+        </p>
+</section>
+<!-- Mobile Quick Actions (Sticky-ish / top of content on mobile) -->
+<section class="flex md:hidden gap-[16px] overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex-shrink-0 bg-primary text-on-primary px-4 py-3 rounded-lg text-label-md font-label-md flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">add</span>
+            Add Property
+        </button>
+<button class="flex-shrink-0 bg-surface text-primary border-2 border-primary px-4 py-3 rounded-lg text-label-md font-label-md flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">calendar_month</span>
+            Calendar
+        </button>
+</section>
+<!-- Summary Stats Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-[16px]">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-low p-[24px] rounded-[24px] flex flex-col justify-between relative overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-fixed/30 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-center gap-3 mb-[24px] relative z-10">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">luggage</span>
+</div>
+<h3 class="text-title-lg font-title-lg text-on-surface">Upcoming</h3>
+</div>
+<div class="relative z-10">
+<p class="text-display-lg-mobile md:text-display-lg text-primary font-display-lg-mobile md:font-display-lg">12</p>
+<p class="text-label-md font-label-md text-on-surface-variant mt-1">Check-ins this week</p>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-low p-[24px] rounded-[24px] flex flex-col justify-between relative overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-fixed/50 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-center gap-3 mb-[24px] relative z-10">
+<div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">meeting_room</span>
+</div>
+<h3 class="text-title-lg font-title-lg text-on-surface">Occupancy</h3>
+</div>
+<div class="relative z-10">
+<div class="flex items-baseline gap-2">
+<p class="text-display-lg-mobile md:text-display-lg text-primary font-display-lg-mobile md:font-display-lg">85%</p>
+<span class="text-label-sm font-label-sm text-secondary bg-secondary/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +5%
+                    </span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant mt-1">Across 4 properties</p>
+</div>
+<!-- Mini sparkline -->
+<div class="absolute bottom-4 right-4 w-24 h-8 opacity-50">
+<svg class="w-full h-full text-secondary stroke-current fill-none stroke-[2px] stroke-linecap-round stroke-linejoin-round" viewbox="0 0 100 30">
+<path d="M0 30 L20 25 L40 28 L60 15 L80 18 L100 5"></path>
+</svg>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-low p-[24px] rounded-[24px] flex flex-col justify-between relative overflow-hidden shadow-sm hover:shadow-md transition-shadow group md:col-span-1">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary-fixed/40 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-center gap-3 mb-[24px] relative z-10">
+<div class="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+<h3 class="text-title-lg font-title-lg text-on-surface">Revenue</h3>
+</div>
+<div class="relative z-10">
+<p class="text-headline-md-mobile md:text-headline-md text-primary font-headline-md-mobile md:font-headline-md">350,000 <span class="text-title-lg font-title-lg text-on-surface-variant">KES</span></p>
+<p class="text-label-md font-label-md text-on-surface-variant mt-1">Estimated this month</p>
+</div>
+</div>
+</section>
+<!-- Recent Bookings Section -->
+<section class="flex flex-col gap-[16px] mt-[16px]">
+<div class="flex justify-between items-center px-2">
+<h3 class="text-headline-md-mobile md:text-headline-md text-primary font-headline-md-mobile md:font-headline-md">Recent Bookings</h3>
+<button class="text-label-md font-label-md text-surface-tint flex items-center hover:underline">
+                View All <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+<!-- Bookings List -->
+<div class="flex flex-col gap-[12px]">
+<!-- Booking Item 1 -->
+<div class="bg-surface-container-lowest p-[16px] md:p-[24px] rounded-[16px] md:rounded-[24px] flex flex-col md:flex-row md:items-center justify-between gap-[16px] shadow-sm hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group">
+<!-- subtle background tint for confirmed -->
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-[16px] relative z-10">
+<div class="w-[48px] h-[48px] rounded-full overflow-hidden bg-surface-container-high flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A smiling young woman in soft natural lighting, headshot portrait, representing a guest profile picture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCajk3NQOj689G9FYbCV8Nj_UJ4z24zdqmTq2Jx4z9pyxeKrkAsHrEgp5CBMuKT5wZh6riP_EXEL6Cvbol_6jXaFQf6rzS4aY4SFwXP7bSY_lqT_zaocKFaRAroUOB69CDxNdralOw3rOZ7flTtyOEUsp3yFLxdvZphOm6Ep2AXreU8T1Ltt87vRSb_wPh0vO7_tUmLY-0d_-_L2D4Y55FZaHi3k3UimCExHii9OAoZhgO3n5elY0Cz"/>
+</div>
+<div class="flex flex-col min-w-0">
+<h4 class="text-title-lg font-title-lg text-on-surface truncate">Amina Juma</h4>
+<p class="text-body-md font-body-md text-on-surface-variant truncate">Villa Ocean Breeze</p>
+</div>
+</div>
+<div class="flex flex-col md:flex-row md:items-center gap-[12px] md:gap-[32px] relative z-10">
+<div class="flex flex-col md:items-end">
+<p class="text-label-md font-label-md text-on-surface">Oct 12 - Oct 15</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">3 Nights • 2 Guests</p>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-[16px]">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-container text-on-primary-container text-label-sm font-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></span>
+                            Confirmed
+                        </span>
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</div>
+</div>
+</div>
+<!-- Booking Item 2 -->
+<div class="bg-surface-container-lowest p-[16px] md:p-[24px] rounded-[16px] md:rounded-[24px] flex flex-col md:flex-row md:items-center justify-between gap-[16px] shadow-sm hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group">
+<div class="flex items-center gap-[16px] relative z-10">
+<div class="w-[48px] h-[48px] rounded-full overflow-hidden bg-surface-container-high flex-shrink-0 flex items-center justify-center text-on-surface-variant">
+<span class="text-title-lg font-title-lg">M</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h4 class="text-title-lg font-title-lg text-on-surface truncate">Michael Omondi</h4>
+<p class="text-body-md font-body-md text-on-surface-variant truncate">Sunset Ridge Apartment</p>
+</div>
+</div>
+<div class="flex flex-col md:flex-row md:items-center gap-[12px] md:gap-[32px] relative z-10">
+<div class="flex flex-col md:items-end">
+<p class="text-label-md font-label-md text-on-surface">Oct 18 - Oct 20</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">2 Nights • 1 Guest</p>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-[16px]">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-label-sm font-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-on-secondary-container animate-pulse"></span>
+                            Pending
+                        </span>
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</div>
+</div>
+</div>
+<!-- Booking Item 3 -->
+<div class="bg-surface-container-lowest p-[16px] md:p-[24px] rounded-[16px] md:rounded-[24px] flex flex-col md:flex-row md:items-center justify-between gap-[16px] shadow-sm hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-[16px] relative z-10">
+<div class="w-[48px] h-[48px] rounded-full overflow-hidden bg-surface-container-high flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A portrait of a middle-aged man wearing glasses, looking thoughtful, representing a guest profile picture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCi1IIEWseZ3lv0GY_7NFtv-EmpS-FY1-jocQlOLHDxT08HugEBOuoFFNqagIRkOWzxq5r2BBJ-tHHizb4gthRy0nS1fo6lPO65Q-xCTGToYzD6EWAe8eaTG0GQcY5sWIKnCG8uWP3lFbdW481BpvkfSXVHA3IHj9frw1RJ61n64W723gnBo8K0KaPtgeyE2dPnjf8dNoGtmuIgSUQXYDcs5TN1BOquDgkZmkAsjgC5_DyGDKu5if6p"/>
+</div>
+<div class="flex flex-col min-w-0">
+<h4 class="text-title-lg font-title-lg text-on-surface truncate">David Kimani</h4>
+<p class="text-body-md font-body-md text-on-surface-variant truncate">Villa Ocean Breeze</p>
+</div>
+</div>
+<div class="flex flex-col md:flex-row md:items-center gap-[12px] md:gap-[32px] relative z-10">
+<div class="flex flex-col md:items-end">
+<p class="text-label-md font-label-md text-on-surface">Oct 22 - Oct 29</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">7 Nights • 4 Guests</p>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-[16px]">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-container text-on-primary-container text-label-sm font-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></span>
+                            Confirmed
+                        </span>
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<script>
+    // Simple script to handle hover states on mobile if needed, though Tailwind handles most.
+    // Adding a subtle intro animation to cards
+    document.addEventListener("DOMContentLoaded", () => {
+        const cards = document.querySelectorAll('.bg-surface-container-low, .bg-surface-container-lowest');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
+            card.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * (index + 1));
+        });
+    });
+</script></main></body></html>
