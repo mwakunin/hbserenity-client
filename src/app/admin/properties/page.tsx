@@ -25,7 +25,7 @@ export default async function AdminPropertiesPage() {
   let properties: PropertySummary[];
   try {
     const page = await apiGet<"/properties">("/properties?limit=100");
-    properties = page.data as unknown as PropertySummary[];
+    properties = page.data;
   }
   catch (error) {
     if (error instanceof ApiError && (error.status === 401 || error.status === 403))

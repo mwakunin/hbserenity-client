@@ -26,8 +26,8 @@ export default async function AdminDashboardPage() {
       apiGet<"/bookings">("/bookings?limit=100", { authenticated: true }),
       apiGet<"/properties">("/properties?limit=100"),
     ]);
-    bookings = bookingPage.data as unknown as BookingRow[];
-    properties = propertyPage.data as unknown as PropertySummary[];
+    bookings = bookingPage.data;
+    properties = propertyPage.data;
   }
   catch (error) {
     // requireAdmin() has already run, so these are the API disagreeing with

@@ -14,7 +14,7 @@ export default async function CalendarPage() {
   let listings: PropertySummary[];
   try {
     const page = await apiGet<"/properties">("/properties?limit=100");
-    listings = page.data as unknown as PropertySummary[];
+    listings = page.data;
   }
   catch (error) {
     if (error instanceof ApiError && (error.status === 401 || error.status === 403))

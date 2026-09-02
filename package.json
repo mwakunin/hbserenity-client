@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "codegen": "openapi-typescript http://localhost:9999/doc -o src/lib/api/schema.d.ts",
+    "codegen": "openapi-typescript \"${OPENAPI_URL:-${API_ORIGIN:-http://localhost:9999}/doc}\" -o src/lib/api/schema.d.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

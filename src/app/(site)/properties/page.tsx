@@ -1,6 +1,5 @@
+import Link from "next/link";
 import { Suspense } from "react";
-
-import type { PropertySummary } from "@/components/property-card";
 
 import { PropertyCard } from "@/components/property-card";
 import { PropertyFilters } from "@/components/property-filters";
@@ -23,8 +22,31 @@ export default async function PropertiesPage({ searchParams }: PageProps<"/prope
   }
 
   const { data, meta } = await apiGet<"/properties">(`/properties?${query}`);
-  const properties = data as unknown as PropertySummary[];
+  const properties = data;
   const filtered = FILTERS.some(k => k !== "page" && params[k]);
+
+  /**
+   * A link to another page of the same search.
+   *
+   * Built from the incoming params rather than from `query`, which carries
+   * the API's `limit` — an implementation detail that has no business in a
+   * URL a guest can copy. Every active filter is carried over: changing the
+   * page must not silently widen the search back to everything.
+   */
+  function pageHref(page: number) {
+    const next = new URLSearchParams();
+    for (const key of FILTERS) {
+      const value = params[key];
+      if (key !== "page" && typeof value === "string" && value.length > 0)
+        next.set(key, value);
+    }
+    // Page 1 is the bare URL, so the first page has one address and not two.
+    if (page > 1)
+      next.set("page", String(page));
+
+    const qs = next.toString();
+    return qs ? `/properties?${qs}` : "/properties";
+  }
 
   return (
     <div className="px-4 py-5">
@@ -57,18 +79,43 @@ export default async function PropertiesPage({ searchParams }: PageProps<"/prope
 
       {/*
         The design's search bar also carries a date range. `GET /properties`
-        takes no date parameters, so filtering by availability would mean
-        checking every listing separately. Left out rather than faked: a date
-        picker that silently does not filter is worse than none.
+        now accepts `checkIn`/`checkOut` and filters by availability, but this
+        page does not send them yet — the picker is still to be built, and a
+        date field that silently does not filter is worse than none.
       */}
       {meta.totalPages > 1 && (
-        <p className="mt-6 text-center text-xs text-on-surface-variant">
-          Page
-          {" "}
-          {meta.page}
-          {" of "}
-          {meta.totalPages}
-        </p>
+        <nav
+          aria-label="Pagination"
+          className="mt-6 flex items-center justify-between gap-3 text-xs"
+        >
+          {/*
+            The edges are omitted rather than disabled: a link to nowhere is
+            still focusable and still reads as a control to a screen reader.
+          */}
+          {meta.page > 1
+            ? (
+                <Link href={pageHref(meta.page - 1)} rel="prev" className="text-primary underline">
+                  ← Previous
+                </Link>
+              )
+            : <span />}
+
+          <span className="text-on-surface-variant">
+            Page
+            {" "}
+            {meta.page}
+            {" of "}
+            {meta.totalPages}
+          </span>
+
+          {meta.page < meta.totalPages
+            ? (
+                <Link href={pageHref(meta.page + 1)} rel="next" className="text-primary underline">
+                  Next →
+                </Link>
+              )
+            : <span />}
+        </nav>
       )}
     </div>
   );

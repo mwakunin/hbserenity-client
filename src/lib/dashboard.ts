@@ -1,3 +1,5 @@
+import type { GetResponse } from "./api/client";
+
 import { nightsBetween } from "./format";
 
 /**
@@ -23,17 +25,8 @@ import { nightsBetween } from "./format";
  * than kept alongside them.
  */
 
-export interface BookingRow {
-  id: string;
-  propertyId: string;
-  checkIn: string;
-  checkOut: string;
-  guestCount: number;
-  status: string;
-  totalAmountCents: number;
-  currency: string;
-  createdAt: string;
-}
+/** As `GET /bookings` returns them, so a contract change is a type error. */
+export type BookingRow = GetResponse<"/bookings">["data"][number];
 
 /** Statuses that represent a stay that is on, or was honoured. */
 const EARNING = new Set(["confirmed", "completed"]);

@@ -112,7 +112,13 @@ export interface paths {
         };
         /**
          * Browse active listings
-         * @description Public. Only returns properties with status 'active' — drafts and deactivated listings are never exposed here.
+         * @description Public. Returns properties with status 'active' — drafts and deactivated listings are never exposed to a guest, and the `status` filter is ignored for anyone who is not an admin.
+         *
+         *     An admin may pass `status` (including `all`) to see their own drafts; the default is still 'active', so browsing as an admin shows what a guest sees.
+         *
+         *     Each listing carries its `coverImage` so a grid can show photos without a request per card. The full gallery stays on `GET /properties/{id}`.
+         *
+         *     Pass `checkIn` and `checkOut` together to return only listings free for the whole stay — bookings that hold dates and host blackouts both count as taken. Ranges are half-open, so a listing is free on the day a previous stay checks out. One date without the other is a 422 rather than a silently ignored filter.
          */
         get: {
             parameters: {
@@ -122,6 +128,9 @@ export interface paths {
                     propertyType?: "apartment" | "house" | "villa" | "cottage" | "studio" | "guesthouse";
                     minGuests?: number;
                     maxPriceCents?: number | null;
+                    status?: "draft" | "active" | "inactive" | "all";
+                    checkIn?: string;
+                    checkOut?: string;
                     page?: number;
                     limit?: number;
                 };
@@ -165,6 +174,18 @@ export interface paths {
                                 createdAt: string;
                                 /** Format: date */
                                 updatedAt: string;
+                                coverImage: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    /** Format: uuid */
+                                    propertyId: string;
+                                    url: string;
+                                    fileId: string;
+                                    order: number;
+                                    isCover: boolean;
+                                    /** Format: date */
+                                    createdAt: string;
+                                } | null;
                             }[];
                             meta: {
                                 page: number;
@@ -1034,6 +1055,7 @@ export interface paths {
                                 createdAt: string;
                                 /** Format: date */
                                 updatedAt: string;
+                                guestName: string;
                             }[];
                             meta: {
                                 page: number;
@@ -1570,7 +1592,122 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List blocked date ranges
+         * @description Admin only. `GET /properties/{id}/availability` already tells a guest which dates are taken, but it returns no ids and deliberately does not carry the host's reason. This is what a calendar needs to offer removal — and the reason is host-internal, which is why it is not on the public endpoint.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    propertyId?: string;
+                    from?: string;
+                    to?: string;
+                    page?: number;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Blocked ranges */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                propertyId: string;
+                                startDate: string;
+                                endDate: string;
+                                reason: string | null;
+                                /** Format: date */
+                                createdAt: string;
+                            }[];
+                            meta: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                    };
+                };
+                /** @description Not signed in */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Not an admin */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description The validation error(s) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success: boolean;
+                            /**
+                             * @example {
+                             *       "name": "ZodError",
+                             *       "issues": [
+                             *         {
+                             *           "code": "invalid_type",
+                             *           "path": [
+                             *             "fieldName"
+                             *           ],
+                             *           "message": "Expected string, received undefined"
+                             *         }
+                             *       ]
+                             *     }
+                             */
+                            error: {
+                                issues: {
+                                    code: string;
+                                    path: (string | number)[];
+                                    message?: string;
+                                }[];
+                                name: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                            retryAfterSeconds: number;
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
         /**
          * Block dates on a property
@@ -1730,6 +1867,124 @@ export interface paths {
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blackouts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Put blocked dates back on sale
+         * @description Admin only. The nights become bookable immediately — nothing else holds them, and no booking references a blackout. Without this, blocking dates is a one-way door.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Blackout removed */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not signed in */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Not an admin */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Blackout not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Invalid id */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success: boolean;
+                            /**
+                             * @example {
+                             *       "name": "ZodError",
+                             *       "issues": [
+                             *         {
+                             *           "code": "invalid_type",
+                             *           "path": [
+                             *             "id"
+                             *           ],
+                             *           "message": "Invalid input: expected string, received undefined"
+                             *         }
+                             *       ]
+                             *     }
+                             */
+                            error: {
+                                issues: {
+                                    code: string;
+                                    path: (string | number)[];
+                                    message?: string;
+                                }[];
+                                name: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                            retryAfterSeconds: number;
+                        };
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -3373,6 +3628,318 @@ export interface paths {
         };
         trace?: never;
     };
+    "/amenities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the amenity catalogue
+         * @description Public. The vocabulary a listing picks from — every amenity that can be attached to a property, whether or not any listing has it. This is what populates a picker in the admin editor; the amenities a particular listing has come back on `GET /properties/{id}`.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The catalogue */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                name: string;
+                                icon: string | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                            retryAfterSeconds: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Add an amenity to the catalogue
+         * @description Admin only. Names are unique, so adding one that already exists is a 409 rather than a second pickable entry meaning the same thing.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The amenity */
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name: string;
+                        icon?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description The created amenity */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            icon: string | null;
+                        };
+                    };
+                };
+                /** @description Not signed in */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Not an admin */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description That amenity already exists */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description The validation error(s) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success: boolean;
+                            /**
+                             * @example {
+                             *       "name": "ZodError",
+                             *       "issues": [
+                             *         {
+                             *           "code": "invalid_type",
+                             *           "path": [
+                             *             "name"
+                             *           ],
+                             *           "message": "Invalid input: expected string, received undefined"
+                             *         }
+                             *       ]
+                             *     }
+                             */
+                            error: {
+                                issues: {
+                                    code: string;
+                                    path: (string | number)[];
+                                    message?: string;
+                                }[];
+                                name: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                            retryAfterSeconds: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/properties/{id}/amenities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace the amenities on a listing
+         * @description Admin only. The body is the complete set the listing ends up with, not a change to apply, so re-submitting a form is idempotent and unticking a box needs no separate call. Repeated ids are ignored. An id that is not in the catalogue is a 422 and nothing is changed.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description The complete set */
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * @example [
+                         *       "9b1d1a2c-6f3e-4a5b-8c7d-0e1f2a3b4c5d"
+                         *     ]
+                         */
+                        amenityIds: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description The listing's amenities */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                name: string;
+                                icon: string | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Not signed in */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Not an admin */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Property not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description The validation error(s) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success: boolean;
+                            /**
+                             * @example {
+                             *       "name": "ZodError",
+                             *       "issues": [
+                             *         {
+                             *           "code": "invalid_type",
+                             *           "path": [
+                             *             "amenityIds"
+                             *           ],
+                             *           "message": "Invalid input: expected array, received undefined"
+                             *         }
+                             *       ]
+                             *     }
+                             */
+                            error: {
+                                issues: {
+                                    code: string;
+                                    path: (string | number)[];
+                                    message?: string;
+                                }[];
+                                name: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                            retryAfterSeconds: number;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/payments/reconcile": {
         parameters: {
             query?: never;
@@ -3745,6 +4312,140 @@ export interface paths {
                     content: {
                         "application/json": {
                             message: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Every payment attempt, with what was actually received
+         * @description Admin only. Until this existed, payments could be read one booking at a time, so there was no way to total money actually taken.
+         *
+         *     `totals` covers every matching attempt rather than the page. `receivedCents` counts `success` attempts only — a pending or failed attempt is not money — and `netCents` is what is left after refunds recorded against those attempts.
+         *
+         *     `from`/`to` are Kenyan calendar days and half-open, so `from=2026-09-01&to=2026-10-01` is exactly September. Correlation ids are never returned, here or anywhere else.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    status?: "pending" | "success" | "failed" | "timeout";
+                    bookingId?: string;
+                    from?: string;
+                    to?: string;
+                    page?: number;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of attempts */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                id: string;
+                                bookingId: string;
+                                provider: string;
+                                phoneNumber: string;
+                                amountCents: number;
+                                /** @enum {string} */
+                                status: "pending" | "success" | "failed" | "timeout";
+                                mpesaReceiptNumber: string | null;
+                                resultDesc: string | null;
+                                refundedCents: number;
+                                /** Format: date */
+                                createdAt: string;
+                                /** Format: date */
+                                updatedAt: string;
+                            }[];
+                            totals: {
+                                receivedCents: number;
+                                refundedCents: number;
+                                netCents: number;
+                            };
+                            meta: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                    };
+                };
+                /** @description Not signed in */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Not an admin */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description The validation error(s) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success: boolean;
+                            /**
+                             * @example {
+                             *       "name": "ZodError",
+                             *       "issues": [
+                             *         {
+                             *           "code": "invalid_type",
+                             *           "path": [
+                             *             "fieldName"
+                             *           ],
+                             *           "message": "Expected string, received undefined"
+                             *         }
+                             *       ]
+                             *     }
+                             */
+                            error: {
+                                issues: {
+                                    code: string;
+                                    path: (string | number)[];
+                                    message?: string;
+                                }[];
+                                name: string;
+                            };
                         };
                     };
                 };

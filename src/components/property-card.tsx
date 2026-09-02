@@ -1,32 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import type { GetResponse } from "@/lib/api/client";
+
 import { formatMoney, pluralise } from "@/lib/format";
 
 /**
- * One listing in a list.
+ * One listing in a list, exactly as `GET /properties` returns it.
  *
- * Takes only the fields `GET /properties` actually returns. That endpoint does
- * NOT include images — only `GET /properties/{id}` does — so `coverUrl` is
- * optional and the card is designed to look deliberate without one rather than
- * collapsing. Fetching a photo per card would mean a request per listing.
+ * Derived rather than restated. The hand-written version had drifted into
+ * fiction: it declared a `coverUrl` string the API has never returned, and
+ * every caller reached it through `as unknown as`, so nothing ever checked.
+ * The list does carry a photo — `coverImage`, the whole record — which is
+ * what makes a grid possible without a request per card. The gallery still
+ * lives on `GET /properties/{id}`.
  */
-export interface PropertySummary {
-  id: string;
-  title: string;
-  county: string;
-  town: string;
-  propertyType: string;
-  maxGuests: number;
-  bedrooms: number;
-  beds: number;
-  pricePerNightCents: number;
-  currency: string;
-  coverUrl?: string | null;
-}
+export type PropertySummary = GetResponse<"/properties">["data"][number];
 
 export function PropertyCard({ property }: { property: PropertySummary }) {
-  const { coverUrl, title, town, county, currency } = property;
+  const { coverImage, title, town, county, currency } = property;
 
   return (
     <Link
@@ -34,10 +26,10 @@ export function PropertyCard({ property }: { property: PropertySummary }) {
       className="group block overflow-hidden rounded-lg bg-surface-container-lowest shadow-sm ring-1 ring-outline-variant/50 transition hover:shadow-md"
     >
       <div className="relative aspect-[4/3] bg-surface-container-high">
-        {coverUrl
+        {coverImage
           ? (
               <Image
-                src={coverUrl}
+                src={coverImage.url}
                 alt=""
                 fill
                 sizes="(max-width: 480px) 100vw, 480px"
@@ -45,8 +37,9 @@ export function PropertyCard({ property }: { property: PropertySummary }) {
               />
             )
           : (
-              // Not an error state: the list endpoint carries no images, so
-              // this is the normal case until one is fetched per property.
+              // A listing with no photos at all. `coverOf()` on the API falls
+              // back to the lowest-ordered image, so this is not "nobody
+              // pressed the cover button" — it is genuinely empty.
               <div className="flex h-full items-center justify-center">
                 <span className="font-headline text-3xl text-on-surface-variant/40">
                   {title.charAt(0)}

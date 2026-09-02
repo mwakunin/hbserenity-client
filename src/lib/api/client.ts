@@ -25,6 +25,12 @@ export type GetResponse<P extends keyof paths>
     ? R
     : never;
 
+/** The JSON request body of a POST, read off the generated schema. */
+export type PostBody<P extends keyof paths>
+  = paths[P] extends { post: { requestBody: { content: { "application/json": infer B } } } }
+    ? B
+    : never;
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,

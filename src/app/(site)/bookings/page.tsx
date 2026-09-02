@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import type { PropertySummary } from "@/components/property-card";
 
 import { ApiError, apiGet } from "@/lib/api/client";
 import { formatDate, formatMoney, pluralise } from "@/lib/format";
@@ -37,9 +36,7 @@ export default async function TripsPage() {
   // list endpoint asked once. Only active listings come back, so a booking
   // against a since-deactivated property falls back to its id.
   const properties = await apiGet<"/properties">("/properties?limit=100", { revalidate: 60 });
-  const byId = new Map(
-    (properties.data as unknown as PropertySummary[]).map(p => [p.id, p]),
-  );
+  const byId = new Map(properties.data.map(p => [p.id, p]));
 
   const rows = [...bookings.data].sort((a, b) => b.checkIn.localeCompare(a.checkIn));
 

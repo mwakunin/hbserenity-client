@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import type { PropertySummary } from "@/components/property-card";
 
 import { PropertyCard } from "@/components/property-card";
 import { apiGet } from "@/lib/api/client";
@@ -23,7 +22,7 @@ export default async function HomePage() {
     revalidate: 60,
   });
 
-  const properties = data as unknown as PropertySummary[];
+  const properties = data;
 
   return (
     <div className="px-4 pb-10">

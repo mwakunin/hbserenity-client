@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { PostBody } from "@/lib/api/client";
+
 /**
  * Validation shared by the admin forms and the server actions.
  *
@@ -26,7 +28,9 @@ export const propertyInput = z.object({
   status: z.enum(["draft", "active", "inactive"]),
   county: z.string().trim().min(1).max(100),
   town: z.string().trim().min(1).max(100),
-  address: z.string().trim().max(500).optional(),
+  // Nullable as well as optional, matching the API: a host clearing the
+  // address sends null rather than dropping the key.
+  address: z.string().trim().max(500).nullable().optional(),
   latitude: z.number().min(-90).max(90).nullable().optional(),
   longitude: z.number().min(-180).max(180).nullable().optional(),
   maxGuests: z.number().int().min(1).max(100),
@@ -61,5 +65,27 @@ export const rateInput = z.object({
   path: ["endDate"],
 });
 
-
 export type RateInput = z.infer<typeof rateInput>;
+
+/*
+ * Compile-time proof that what these schemas produce is what the API accepts.
+ *
+ * The rules below are written out rather than generated — Zod carries the
+ * bounds and the cross-field checks that give a readable message before a
+ * round trip, and the OpenAPI document does not. The risk in restating them
+ * is drift: a field the API renames or makes required stays valid here and
+ * fails at runtime instead. These assignments cost nothing at runtime and
+ * fail the build if the validated payload stops fitting the generated body.
+ *
+ * Assignability, not equality, and in this direction on purpose: the schemas
+ * are what gets sent, so they must fit inside the contract. A field the API
+ * newly accepts is not a reason to fail a build.
+ */
+type PropertyBody = PostBody<"/properties">;
+type RateBody = PostBody<"/rate-overrides">;
+
+const _propertyFitsContract: (input: PropertyInput) => PropertyBody = input => input;
+const _rateFitsContract: (input: RateInput) => RateBody = input => input;
+
+void _propertyFitsContract;
+void _rateFitsContract;

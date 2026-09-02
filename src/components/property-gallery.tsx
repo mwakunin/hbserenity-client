@@ -1,11 +1,9 @@
 import Image from "next/image";
 
-interface GalleryImage {
-  id: string;
-  url: string;
-  isCover: boolean;
-  order: number;
-}
+import type { GetResponse } from "@/lib/api/client";
+
+/** As `GET /properties/{id}` returns them — not a local copy of the shape. */
+type GalleryImage = GetResponse<"/properties/{id}">["images"][number];
 
 /**
  * The hero for a listing.
