@@ -20,6 +20,25 @@ You can start editing the public home page by modifying `src/app/(site)/page.tsx
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## API types
+
+`src/lib/api/schema.d.ts` is generated from the API's own OpenAPI document, so
+nothing here restates a response shape by hand:
+
+```bash
+pnpm codegen                                  # defaults to http://localhost:9999/doc
+API_ORIGIN=https://api.example pnpm codegen   # or point it elsewhere
+OPENAPI_URL=https://api.example/doc pnpm codegen
+```
+
+The API has to be running — the document is served, not committed.
+
+**This script needs a POSIX shell.** It resolves its default with
+`${OPENAPI_URL:-${API_ORIGIN:-...}}`, which cmd.exe does not expand; on Windows
+run it from WSL or Git Bash. Nothing else here is POSIX-only, but the API this
+app talks to is developed against Docker Compose and a bash script, so a
+Windows-native workflow is not a supported path today.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -74,7 +75,19 @@ export function CheckoutPayment({
       query.state.data?.status === "pending_payment" ? 3000 : false,
   });
 
-  const confirmed = booking.data?.status === "confirmed";
+  /*
+   * `pending_payment` is the only status worth waiting on.
+   *
+   * Every other one is terminal, and the waiting panel has to end on all of
+   * them — not just `confirmed`. Polling already stops for a cancelled or
+   * completed booking, but the screen kept saying "waiting for confirmation",
+   * so a guest whose booking was called off in another tab, or by the host,
+   * was told to keep watching a handset for a prompt that will never be
+   * answered.
+   */
+  const status = booking.data?.status;
+  const confirmed = status === "confirmed";
+  const settledOtherwise = status !== undefined && status !== "pending_payment" && !confirmed;
 
   // Navigation is a side effect, so it belongs in an effect and not in the
   // render pass — calling router.replace() while rendering mutates the router
@@ -89,6 +102,29 @@ export function CheckoutPayment({
       <p className="rounded-lg bg-surface-container p-4 text-center text-sm text-on-surface">
         Payment received. Taking you to your booking…
       </p>
+    );
+  }
+
+  if (settledOtherwise) {
+    return (
+      <div className="rounded-lg bg-surface-container p-4 text-center">
+        <p className="text-sm font-medium text-on-surface">
+          {status === "cancelled"
+            ? "This booking has been cancelled."
+            : "This stay is already complete."}
+        </p>
+        <p className="mt-1 text-xs text-on-surface-variant">
+          {status === "cancelled"
+            // Cancelling does not retract a prompt already on the handset, and
+            // a payment can still land afterwards — so this must not claim
+            // nothing was taken.
+            ? "There is nothing more to pay. If you were charged, it will show on the booking."
+            : "There is nothing left to pay for it."}
+        </p>
+        <Link href={`/bookings/${bookingId}`} className="mt-3 inline-block text-xs text-primary underline">
+          View booking
+        </Link>
+      </div>
     );
   }
 

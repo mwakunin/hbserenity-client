@@ -11,19 +11,31 @@ export const metadata = { title: "Search stays" };
 /** Only the filters the API actually accepts. */
 const FILTERS = ["county", "town", "propertyType", "minGuests", "maxPriceCents", "page"] as const;
 
+/**
+ * A filter this page will actually send.
+ *
+ * A repeated parameter — `?town=a&town=b` — arrives as an array, which is
+ * truthy but is not something the API takes, so it is skipped when the query
+ * is built. Testing for truthiness instead of applying this same rule made
+ * the page report "match your filters" over an unfiltered result set.
+ */
+function filterValue(value: string | string[] | undefined): string | undefined {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
 export default async function PropertiesPage({ searchParams }: PageProps<"/properties">) {
   const params = await searchParams;
   const query = new URLSearchParams({ limit: "20" });
 
   for (const key of FILTERS) {
-    const value = params[key];
-    if (typeof value === "string" && value.length > 0)
+    const value = filterValue(params[key]);
+    if (value !== undefined)
       query.set(key, value);
   }
 
   const { data, meta } = await apiGet<"/properties">(`/properties?${query}`);
   const properties = data;
-  const filtered = FILTERS.some(k => k !== "page" && params[k]);
+  const filtered = FILTERS.some(k => k !== "page" && filterValue(params[k]) !== undefined);
 
   /**
    * A link to another page of the same search.
@@ -36,8 +48,8 @@ export default async function PropertiesPage({ searchParams }: PageProps<"/prope
   function pageHref(page: number) {
     const next = new URLSearchParams();
     for (const key of FILTERS) {
-      const value = params[key];
-      if (key !== "page" && typeof value === "string" && value.length > 0)
+      const value = filterValue(params[key]);
+      if (key !== "page" && value !== undefined)
         next.set(key, value);
     }
     // Page 1 is the bare URL, so the first page has one address and not two.
