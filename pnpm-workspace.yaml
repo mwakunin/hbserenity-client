@@ -1,3 +1,7 @@
+# sharp compiles native bindings, so its build script has to be allowed to
+# run. Next's own deployment guide calls it "the only additional dependency"
+# for Image Optimization: without it `next start` cannot resize or re-encode,
+# and every next/image on the site falls back to serving the original.
 allowBuilds:
-  sharp: false
+  sharp: true
   unrs-resolver: false
