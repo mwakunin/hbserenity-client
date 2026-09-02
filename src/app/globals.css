@@ -1,0 +1,206 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Layer 1 — the design's own tokens, verbatim from the Stitch project's
+ * "Coastal Morning" theme.
+ *
+ * These are the values the screens were drawn against, so they are the
+ * source of truth and nothing else may redefine them. Regenerate from the
+ * Stitch project rather than hand-editing a colour here.
+ */
+:root {
+  --background: #f7f9fd;
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --inverse-on-surface: #eff1f5;
+  --inverse-primary: #a7c8ff;
+  --inverse-surface: #2d3134;
+  --on-background: #191c1f;
+  --on-error: #ffffff;
+  --on-error-container: #93000a;
+  --on-primary: #ffffff;
+  --on-primary-container: #799dd6;
+  --on-primary-fixed: #001b3c;
+  --on-primary-fixed-variant: #1f477b;
+  --on-secondary: #ffffff;
+  --on-secondary-container: #636451;
+  --on-secondary-fixed: #1b1d0e;
+  --on-secondary-fixed-variant: #474836;
+  --on-surface: #191c1f;
+  --on-surface-variant: #43474f;
+  --on-tertiary: #ffffff;
+  --on-tertiary-container: #f47749;
+  --on-tertiary-fixed: #380c00;
+  --on-tertiary-fixed-variant: #822800;
+  --outline: #737780;
+  --outline-variant: #c3c6d1;
+  --primary: #001e40;
+  --primary-container: #003366;
+  --primary-fixed: #d5e3ff;
+  --primary-fixed-dim: #a7c8ff;
+  --secondary: #5e604d;
+  --secondary-container: #e1e1c9;
+  --secondary-fixed: #e4e4cc;
+  --secondary-fixed-dim: #c8c8b0;
+  --surface: #f7f9fd;
+  --surface-bright: #f7f9fd;
+  --surface-container: #eceef2;
+  --surface-container-high: #e6e8ec;
+  --surface-container-highest: #e0e2e6;
+  --surface-container-low: #f2f4f8;
+  --surface-container-lowest: #ffffff;
+  --surface-dim: #d8dade;
+  --surface-tint: #3a5f94;
+  --surface-variant: #e0e2e6;
+  --tertiary: #3d0e00;
+  --tertiary-container: #611b00;
+  --tertiary-fixed: #ffdbcf;
+  --tertiary-fixed-dim: #ffb59c;
+
+  /* The theme specifies ROUND_EIGHT. */
+  --radius: 0.5rem;
+}
+
+/*
+ * Layer 2 — the variables shadcn's components consume, expressed in terms
+ * of layer 1.
+ *
+ * `shadcn init` writes its own neutral palette straight into `:root`, which
+ * silently overwrote --background and --primary with greys the design never
+ * specified. Defining them here as references instead means a newly added
+ * component inherits the design and cannot drift from it.
+ *
+ * Note which slots are absent below: background, primary, secondary.
+ * Those names are design tokens in their own right, already carrying the
+ * value shadcn wants. Restating them would be a no-op at best and a cycle
+ * at worst (`--primary: var(--primary)`), so layer 1's definition stands.
+ */
+:root {
+  --foreground: var(--on-surface);
+  --card: var(--surface-container-lowest);  /* raised over the page */
+  --card-foreground: var(--on-surface);
+  --popover: var(--surface-container-lowest);
+  --popover-foreground: var(--on-surface);
+  --primary-foreground: var(--on-primary);
+  --secondary-foreground: var(--on-secondary);
+  --muted: var(--surface-container);
+  --muted-foreground: var(--on-surface-variant);
+  --accent: var(--surface-container-high);  /* subtle hover ground */
+  --accent-foreground: var(--on-surface);
+  --destructive: var(--error);
+  --destructive-foreground: var(--on-error);
+  --border: var(--outline-variant);
+  --input: var(--outline-variant);
+  --ring: var(--primary);
+
+  /*
+   * The coral the design reserves for the pay action, and nothing else.
+   * Kept out of --accent deliberately: that slot is every hover state in
+   * the app, and this colour is meant to appear once per screen.
+   */
+  --cta: var(--on-tertiary-container);
+  --cta-foreground: var(--on-primary);
+}
+
+/*
+ * Layer 3 — Tailwind utilities. Both vocabularies resolve to one colour, so
+ * `bg-surface` and `bg-background` are the same paint.
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-error: var(--error);
+  --color-error-container: var(--error-container);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+  --color-inverse-primary: var(--inverse-primary);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-on-background: var(--on-background);
+  --color-on-error: var(--on-error);
+  --color-on-error-container: var(--on-error-container);
+  --color-on-primary: var(--on-primary);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-on-primary-fixed: var(--on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
+  --color-on-secondary: var(--on-secondary);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-on-secondary-fixed: var(--on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--on-secondary-fixed-variant);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-on-tertiary-fixed: var(--on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
+  --color-secondary: var(--secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-secondary-fixed-dim: var(--secondary-fixed-dim);
+  --color-surface: var(--surface);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-tint: var(--surface-tint);
+  --color-surface-variant: var(--surface-variant);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-tertiary-fixed: var(--tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
+
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-cta: var(--cta);
+  --color-cta-foreground: var(--cta-foreground);
+
+  --font-headline: var(--font-playfair);
+  --font-sans: var(--font-montserrat);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+}
+
+/*
+ * No dark palette. The Stitch theme is LIGHT only, so a dark variant would
+ * be invented rather than taken from the design. The `dark` variant stays
+ * declared so shadcn components referencing it still compile; nothing sets
+ * the class, so it never applies.
+ */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-headline), Georgia, serif;
+  }
+}

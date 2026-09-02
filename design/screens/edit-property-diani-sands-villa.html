@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "outline-variant": "#c3c6d1", "surface-container-low": "#f2f4f8", "on-surface": "#191c1f", "tertiary-fixed": "#ffdbcf", "surface": "#f7f9fd", "tertiary-fixed-dim": "#ffb59c", "inverse-primary": "#a7c8ff", "surface-bright": "#f7f9fd", "surface-container-highest": "#e0e2e6", "on-tertiary": "#ffffff", "primary": "#001e40", "surface-container": "#eceef2", "surface-container-lowest": "#ffffff", "on-secondary-fixed": "#1b1d0e", "on-error-container": "#93000a", "primary-container": "#003366", "on-primary-fixed-variant": "#1f477b", "secondary-fixed": "#e4e4cc", "on-surface-variant": "#43474f", "on-tertiary-fixed": "#380c00", "on-background": "#191c1f", "on-tertiary-container": "#f47749", "surface-tint": "#3a5f94", "surface-variant": "#e0e2e6", "background": "#f7f9fd", "surface-dim": "#d8dade", "secondary-container": "#e1e1c9", "inverse-surface": "#2d3134", "primary-fixed": "#d5e3ff", "on-secondary-fixed-variant": "#474836", "on-secondary-container": "#636451", "on-primary-container": "#799dd6", "tertiary-container": "#611b00", "primary-fixed-dim": "#a7c8ff", "outline": "#737780", "on-error": "#ffffff", "surface-container-high": "#e6e8ec", "secondary-fixed-dim": "#c8c8b0", "on-primary-fixed": "#001b3c", "error-container": "#ffdad6", "secondary": "#5e604d", "inverse-on-surface": "#eff1f5", "tertiary": "#3d0e00", "on-secondary": "#ffffff", "error": "#ba1a1a", "on-primary": "#ffffff", "on-tertiary-fixed-variant": "#822800" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "section-gap-sm": "32px", "section-gap-lg": "80px", "gutter": "16px", "container-margin-mobile": "20px", "container-margin-desktop": "80px" }, "fontFamily": { "body-lg": ["Montserrat"], "headline-md": ["Playfair Display"], "body-md": ["Montserrat"], "title-lg": ["Montserrat"], "display-lg": ["Playfair Display"], "label-md": ["Montserrat"], "headline-md-mobile": ["Playfair Display"], "label-sm": ["Montserrat"], "display-lg-mobile": ["Playfair Display"] } } } }</script><style>@layer base { body { -webkit-tap-highlight-color: transparent; } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-4 flex items-center justify-between"><div class="flex items-center gap-2"><button class="w-11 h-11 flex items-center justify-center text-on-surface" onclick="history.back()"><span class="material-symbols-outlined">arrow_back_ios_new</span></button><h1 class="text-title-lg font-title-lg text-primary truncate">Manage Property</h1></div><div class="flex items-center"><button class="w-11 h-11 flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">share</span></button></div></div></header><main class="relative w-full pt-16 min-h-screen bg-surface"><div class="flex flex-col w-full pb-24">
+<!-- Header Context -->
+<div class="px-container-margin-mobile pt-6 pb-4">
+<h2 class="text-headline-md-mobile text-primary font-headline-md-mobile">Diani Sands Villa</h2>
+<p class="text-body-md text-on-surface-variant mt-1">Manage Property Details</p>
+</div>
+<!-- Navigation Tabs -->
+<div class="w-full overflow-x-auto px-container-margin-mobile pb-2 mb-6 scrollbar-hide border-b border-outline-variant/30">
+<div class="flex gap-6 min-w-max">
+<button class="text-label-md text-primary font-label-md border-b-2 border-primary pb-2 whitespace-nowrap">Photos</button>
+<button class="text-label-md text-on-surface-variant font-label-md pb-2 whitespace-nowrap">Details</button>
+<button class="text-label-md text-on-surface-variant font-label-md pb-2 whitespace-nowrap">Pricing</button>
+<button class="text-label-md text-on-surface-variant font-label-md pb-2 whitespace-nowrap">Availability</button>
+</div>
+</div>
+<!-- Content Area: Photos -->
+<div class="px-container-margin-mobile flex flex-col gap-section-gap-sm">
+<!-- Photo Management Header -->
+<div class="flex justify-between items-end">
+<div>
+<h3 class="text-title-lg text-primary font-title-lg">Gallery</h3>
+<p class="text-label-sm text-on-surface-variant mt-1">Drag to reorder. First image is the hero.</p>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-full flex items-center gap-2 text-label-md shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_photo_alternate</span>
+                 Add
+             </button>
+</div>
+<!-- Photo Grid -->
+<div class="grid grid-cols-2 gap-gutter relative">
+<!-- Hero Image (Full Width on Mobile usually, but let's do a bento for admin) -->
+<div class="col-span-2 relative group rounded-xl overflow-hidden shadow-sm aspect-video bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A wide, sweeping shot of a luxurious beachfront villa in Diani Beach, Kenya, taken at golden hour. The pristine white sand stretches out in front, leading to turquoise waters. The villa itself features modern coastal architecture with a thatched roof, large glass sliding doors open to a spacious deck, and warm interior lighting glowing against the sunset sky." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB43Ky_sN87C9YELDl4B-CPa8ILmfdGifYNJjI39Y1ftZ8b3Eddq7XXdVRIXq4Q80IQTB4eveXp_SwqVQzw5O7ZUL59dhvM97bc6N1RPm-iKR75aMg4aiI2UccXyGuKuFet3dOyWa6z5c9R4_2Q0HtuAxdcV_JnBA9QbcO-a0Rue4CKXx7-r-7B0eBoWwSQ9R9ciPat75X55gAK2YapeaefcA3t8bBpOWo4O3rleLBzBnsyGSFJvTGk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent"></div>
+<div class="absolute top-2 left-2 bg-secondary text-on-secondary px-2 py-1 rounded text-label-sm font-label-sm backdrop-blur-sm bg-opacity-80">Hero Image</div>
+<div class="absolute top-2 right-2 w-8 h-8 bg-surface/80 backdrop-blur-md rounded-full flex items-center justify-center text-on-surface shadow-sm cursor-grab">
+<span class="material-symbols-outlined text-[18px]">drag_indicator</span>
+</div>
+<div class="absolute bottom-2 right-2 w-8 h-8 bg-error/90 backdrop-blur-md rounded-full flex items-center justify-center text-on-error shadow-sm">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</div>
+</div>
+<!-- Grid Images -->
+<div class="relative group rounded-lg overflow-hidden shadow-sm aspect-square bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Interior shot of the master bedroom in a luxury coastal villa. A large four-poster bed with sheer white mosquito netting and crisp white linens. Light wood furnishings, a subtle woven rug, and large windows looking out towards the ocean. Natural, bright daylight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuADOru9eUXvGr41IE22RCiMJez30WQMu9zR3bwTeicrt3Yij9YM86dbveM6BCC-9LZJ2Lfjkh0JjJoYKN2nDO8MnXzUm-gMB22yynXMW7nAV2U0oefGQiQgFzN6D0Ug7cHihLgD_6e7pAjuCUZOIA1ZCHrPA-0SHzQD-1Tt2TsjHtyI0uoSux46mV1CgZsY6ADFBKHuIGzUFZxSpmVPe5rDgcmFFZfbo5ZvpdYOC4oP5QTJO6d7_G"/>
+<div class="absolute top-2 right-2 w-7 h-7 bg-surface/80 backdrop-blur-md rounded-full flex items-center justify-center text-on-surface shadow-sm cursor-grab">
+<span class="material-symbols-outlined text-[16px]">drag_indicator</span>
+</div>
+</div>
+<div class="relative group rounded-lg overflow-hidden shadow-sm aspect-square bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A bright, modern open-plan kitchen and dining area in a tropical villa. High-end appliances, a large marble island with woven bar stools, and a dining table set for six. Sunlight streaming through large windows, highlighting the clean, airy design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN8yBOom1uqAXl5g5sPr492eG0xZyymRCLWk27kFp6sU6Nh4HGqcyMSJM84rqOqLRYQkhLRsW9L-nrUjysa67bJKc-jN_fpEMRG0o1bO2ydtNFbWsTRyj6Ifwj1x1azMKy7THwXYXB_oobBd9_BE9bJryCBibQhuaWYiQ5Q-22IPHmezkR9a7LmP8IaLxghrq3SVOHWVt4Ju0NkmZtN0sTfe6PKJrhfkGO1W3ZNzdGkRfg_MlP7OmU"/>
+<div class="absolute top-2 right-2 w-7 h-7 bg-surface/80 backdrop-blur-md rounded-full flex items-center justify-center text-on-surface shadow-sm cursor-grab">
+<span class="material-symbols-outlined text-[16px]">drag_indicator</span>
+</div>
+</div>
+<div class="relative group rounded-lg overflow-hidden shadow-sm aspect-square bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A close-up of a sparkling infinity pool on a wooden deck, overlooking the Indian Ocean. Sun loungers with plush white cushions are positioned by the edge. Palm fronds cast soft shadows on the deck. Serene and luxurious atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoll31aN7xJWrSkyVO68mjNimy3A4iIao61_ao-QXM3b0nZfCvXZ-KyHs-qFxmdU79KH9Rh5QwIKlZ5jDVlIoEN4X0KQOhuI9iKIXyYxptHebNCRMybL66vkiF9JOQro22oAepyvoQy9nLS7feXBPtph5g3dL3Q8Y36UeBQGXEsGlSvwAjymj5g3ig7Mdc3JMSTFUzpvloQFL_VQKxoio2lntBHZAd46cKsmXY_FDiElNK2gVQqtry"/>
+<div class="absolute top-2 right-2 w-7 h-7 bg-surface/80 backdrop-blur-md rounded-full flex items-center justify-center text-on-surface shadow-sm cursor-grab">
+<span class="material-symbols-outlined text-[16px]">drag_indicator</span>
+</div>
+</div>
+<div class="relative group rounded-lg border-2 border-dashed border-outline-variant aspect-square flex flex-col items-center justify-center text-on-surface-variant cursor-pointer hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[32px] mb-1">upload</span>
+<span class="text-label-sm font-label-sm">Upload</span>
+</div>
+</div>
+</div>
+<!-- Fixed Bottom Bar -->
+<div class="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-xl border-t border-outline-variant/20 p-4 pb-safe shadow-[0_-4px_24px_rgba(0,0,0,0.06)] z-40">
+<button class="w-full bg-primary text-on-primary py-4 rounded-xl text-title-lg font-title-lg flex justify-center items-center gap-2 active:scale-[0.98] transition-transform">
+            Save Changes
+        </button>
+</div>
+</div></main></body></html>

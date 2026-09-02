@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "outline-variant": "#c3c6d1", "surface-container-low": "#f2f4f8", "on-surface": "#191c1f", "tertiary-fixed": "#ffdbcf", "surface": "#f7f9fd", "tertiary-fixed-dim": "#ffb59c", "inverse-primary": "#a7c8ff", "surface-bright": "#f7f9fd", "surface-container-highest": "#e0e2e6", "on-tertiary": "#ffffff", "primary": "#001e40", "surface-container": "#eceef2", "surface-container-lowest": "#ffffff", "on-secondary-fixed": "#1b1d0e", "on-error-container": "#93000a", "primary-container": "#003366", "on-primary-fixed-variant": "#1f477b", "secondary-fixed": "#e4e4cc", "on-surface-variant": "#43474f", "on-tertiary-fixed": "#380c00", "on-background": "#191c1f", "on-tertiary-container": "#f47749", "surface-tint": "#3a5f94", "surface-variant": "#e0e2e6", "background": "#f7f9fd", "surface-dim": "#d8dade", "secondary-container": "#e1e1c9", "inverse-surface": "#2d3134", "primary-fixed": "#d5e3ff", "on-secondary-fixed-variant": "#474836", "on-secondary-container": "#636451", "on-primary-container": "#799dd6", "tertiary-container": "#611b00", "primary-fixed-dim": "#a7c8ff", "outline": "#737780", "on-error": "#ffffff", "surface-container-high": "#e6e8ec", "secondary-fixed-dim": "#c8c8b0", "on-primary-fixed": "#001b3c", "error-container": "#ffdad6", "secondary": "#5e604d", "inverse-on-surface": "#eff1f5", "tertiary": "#3d0e00", "on-secondary": "#ffffff", "error": "#ba1a1a", "on-primary": "#ffffff", "on-tertiary-fixed-variant": "#822800" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "section-gap-sm": "32px", "section-gap-lg": "80px", "gutter": "16px", "container-margin-mobile": "20px", "container-margin-desktop": "80px" }, "fontFamily": { "body-lg": ["Montserrat"], "headline-md": ["Playfair Display"], "body-md": ["Montserrat"], "title-lg": ["Montserrat"], "display-lg": ["Playfair Display"], "label-md": ["Montserrat"], "headline-md-mobile": ["Playfair Display"], "label-sm": ["Montserrat"], "display-lg-mobile": ["Playfair Display"] } } } }</script><style>@layer base { body { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } }</style></head><body class="bg-surface font-body-md text-on-surface"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-container-margin-mobile flex items-center justify-between"><div class="flex items-center gap-3"><img alt="Amani Stays Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsVklBo1wDjTEsAOmZaL9wS5Faqpb4DmefI1IAhv6hMDkgP8bveeFvYCbq1LAyJWLpdkVhj6Zm9AMYefqkuWGxFvfjNgp6pRKRsX1dD8uvGRPMeVvHWfxMCEYbm7tHg27mUcXqKQKb9WjtbvgHoExtf5a2XsdG1_ddHhzf6RPR72P4FtogZqlKAZctGLpp6mI-RiYebHR3J7IZFXDXdvZmGyUHzF7kjzP3N-pyyZUuIzKbsXweHVoV"><span class="font-title-lg text-title-lg text-primary tracking-tight hidden sm:block">Amani Stays</span></div><h1 class="sr-only">Search</h1><div class="flex items-center gap-4"><button class="w-11 h-11 flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">notifications</span></button><img alt="Profile" class="w-9 h-9 rounded-full object-cover ring-2 ring-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7ogsE68tj3qYs4HenfmYuD8VwkxZF_yFKUzpEw3p9xSZA7n1CGdLKQguACT-MfY832SkVdhZWtbPel7olaTml09r7o86E4IeKzoBE0Wdr8UMeudmY1WTgy7dEDG7tKsqwsINbiXBaCSw8tMJVlJL7B3fzu_gzcq7WJUmrNT7JlzFGEdwWDFkuRJNfSgGayOpV1gCKvYSKOQ3i1W_ciQzSfVgpo5PnlHsV0BhP_oVc683ZWwvnz4NP"></div></div></header><main class="relative w-full pt-16 pb-32 min-h-screen bg-surface"><div class="flex flex-col w-full relative h-full">
+<!-- Search/Filter Bar -->
+<div class="px-container-margin-mobile py-4 bg-surface sticky top-0 z-40 border-b border-surface-variant">
+<div class="flex items-center justify-between gap-3 bg-surface-container-low rounded-full px-4 py-3 shadow-[0_2px_8px_rgba(0,30,64,0.04)]">
+<div class="flex items-center gap-3 overflow-hidden">
+<span class="material-symbols-outlined text-primary text-xl">search</span>
+<div class="flex flex-col min-w-0">
+<span class="text-label-md text-on-surface truncate">Diani Beach</span>
+<span class="text-label-sm text-on-surface-variant truncate">Mar 10 - 15 • 2 Guests</span>
+</div>
+</div>
+<button aria-label="Edit search" class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
+<span class="material-symbols-outlined text-on-surface-variant text-xl">edit</span>
+</button>
+</div>
+<!-- Active Quick Filters (Pills) -->
+<div class="flex gap-2 mt-4 overflow-x-auto pb-2 snap-x hide-scrollbar">
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-surface-variant bg-surface-container-low text-label-md text-on-surface hover:border-outline transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">tune</span>
+        Filters
+      </button>
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-primary bg-primary-fixed text-label-md text-on-primary-fixed flex items-center gap-2">
+        Villas
+        <span class="material-symbols-outlined text-sm">close</span>
+</button>
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-surface-variant bg-surface-container-low text-label-md text-on-surface hover:border-outline transition-colors">Beachfront</button>
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-surface-variant bg-surface-container-low text-label-md text-on-surface hover:border-outline transition-colors">Pool</button>
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-surface-variant bg-surface-container-low text-label-md text-on-surface hover:border-outline transition-colors">Chef Included</button>
+</div>
+</div>
+<!-- Property List -->
+<div class="flex-1 px-container-margin-mobile py-section-gap-sm flex flex-col gap-6" id="property-list">
+<!-- Property Card 1 -->
+<article class="bg-surface-container-lowest rounded-b-[24px] rounded-t-[24px] shadow-[0_4px_24px_rgba(0,30,64,0.06)] overflow-hidden flex flex-col group transition-transform duration-300 hover:-translate-y-1">
+<div class="relative w-full aspect-video rounded-t-[24px] overflow-hidden">
+<img alt="Villa Azura" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A luxurious modern villa in Diani, Kenya, featuring a pristine infinity pool overlooking the white sand beach and turquoise Indian Ocean. The architecture is airy with large glass windows, thatched makuti roof details, and lush tropical palm trees surrounding the property. Bright, sunny daylight, shot in high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhp3lZUkN3WHwMPA4s1o6QJu04TDY0INfEiin50sEBm828_C2U4wGqxDCf8rlR3KjenlvfLRlxvtOfwP-j01W6tclAUdIhBBRVzzdCpi80wsZ-_WPMRkhcQaM41uosk5TvYMby27H3h2uiMYU9ZhBpnnmkn3ycrnDVZWM_QphckyMgzHkFR7GKzpDNDEKONLFSaQt373B-bZZ43CdyAxZvqs1b0sx8J-2p7sCY9XcxBtmP4jy1au1c">
+<div class="absolute top-4 left-4 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-sm text-tertiary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm text-on-surface font-semibold">4.96</span>
+</div>
+<button aria-label="Save to favorites" class="absolute top-4 right-4 w-9 h-9 bg-surface/90 backdrop-blur-md rounded-full flex items-center justify-center text-on-surface hover:text-tertiary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<!-- Badge -->
+<div class="absolute bottom-4 left-4 bg-primary/90 backdrop-blur-sm text-on-primary px-3 py-1.5 rounded-full text-label-sm font-semibold uppercase tracking-wider">
+          Villa
+        </div>
+</div>
+<div class="p-5 flex flex-col gap-2">
+<div class="flex justify-between items-start gap-4">
+<h2 class="text-title-lg text-on-surface font-headline-md leading-tight line-clamp-1">Villa Azura</h2>
+<div class="text-right flex-shrink-0">
+<span class="text-title-lg text-tertiary-container font-semibold block">$450</span>
+<span class="text-label-sm text-on-surface-variant font-normal block">/ night</span>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant line-clamp-1">Diani Beach, Kwale County</p>
+<div class="flex items-center gap-4 mt-2 pt-4 border-t border-surface-variant/50">
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">bed</span>
+<span class="text-label-sm">4 Beds</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">shower</span>
+<span class="text-label-sm">4.5 Baths</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span class="text-label-sm">8 Guests</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Property Card 2 -->
+<article class="bg-surface-container-lowest rounded-b-[24px] rounded-t-[24px] shadow-[0_4px_24px_rgba(0,30,64,0.06)] overflow-hidden flex flex-col group transition-transform duration-300 hover:-translate-y-1">
+<div class="relative w-full aspect-video rounded-t-[24px] overflow-hidden">
+<img alt="Swahili Sands House" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A stunning boutique beachfront bungalow in Diani Beach, featuring a Swahili-inspired design with crisp white walls, carved wooden doors, and a private plunge pool. The ocean is visible in the background under a warm, golden hour sunset light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRRxbtXkUlYt8jit3coYXjrykLESFzu8wFMvoDMV4iykPlyQnxw-JkzvEuUnIZV-kIMTaImRCwY3D8PdeejNJDbTexc5zcliFq9kPCSnm6beZJeJwfMA2dIgiYxaruqmaAkQlTUCkdGO6YIfTdWuUTr7KRXulGG5p_MKs_ByYZzv0QD_Ucuj2k0GXt6gECpKkPjz71-5o6bB-3-3slyeoCcspb60zHNkMPye6tA0_OFH2Czr6ivOQG">
+<div class="absolute top-4 left-4 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-sm text-tertiary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm text-on-surface font-semibold">4.85</span>
+</div>
+<button aria-label="Save to favorites" class="absolute top-4 right-4 w-9 h-9 bg-surface/90 backdrop-blur-md rounded-full flex items-center justify-center text-on-surface hover:text-tertiary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4 bg-secondary/90 backdrop-blur-sm text-on-secondary px-3 py-1.5 rounded-full text-label-sm font-semibold uppercase tracking-wider">
+          Boutique House
+        </div>
+</div>
+<div class="p-5 flex flex-col gap-2">
+<div class="flex justify-between items-start gap-4">
+<h2 class="text-title-lg text-on-surface font-headline-md leading-tight line-clamp-1">Swahili Sands</h2>
+<div class="text-right flex-shrink-0"><span class="text-title-lg text-tertiary-container font-semibold block">$280</span><span class="text-label-sm text-on-surface-variant font-normal block">/ night</span></div>
+</div>
+<p class="text-body-md text-on-surface-variant line-clamp-1">Galu Kinondo, Diani</p><div class="flex items-center gap-4 mt-2 pt-4 border-t border-surface-variant/50"><div class="flex items-center gap-1.5 text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">bed</span><span class="text-label-sm">4 Beds</span></div><div class="flex items-center gap-1.5 text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">shower</span><span class="text-label-sm">3 Baths</span></div><div class="flex items-center gap-1.5 text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">group</span><span class="text-label-sm">6 Guests</span></div></div>
+</div>
+</article>
+<!-- Property Card 3 -->
+<article class="bg-surface-container-lowest rounded-b-[24px] rounded-t-[24px] shadow-[0_4px_24px_rgba(0,30,64,0.06)] overflow-hidden flex flex-col group transition-transform duration-300 hover:-translate-y-1">
+<div class="relative w-full aspect-video rounded-t-[24px] overflow-hidden">
+<img alt="The Palm Estate" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="An expansive luxury estate in Diani set back slightly from the beach in a lush tropical garden. Features a massive free-form swimming pool, outdoor dining pavilion, and contemporary coastal architecture. Shot during early morning with soft, diffused light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsGdTeZSXX0Gg_dtyfogDPhBZmxHtmSOtIwoaaw8opwSQ2I_H3edT-PRDDFA4IjCkfnLZRHeD2qNQaT9zlBK5FS0ab9NLibS51gH05H6tiNpszyxKxJ9RT-qSN4rBlnySb1PDmmKNJl6lswDhMNScPVNToGUcwWyMgkWOZqjExdOKEmfkSo3p_bxCMj4ezhgwYtfkX_pEiX8vTOswip0a3I6MNIWXtdWwNb-geeDxTebea_gWoqLLT">
+<div class="absolute top-4 left-4 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-sm text-tertiary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm text-on-surface font-semibold">5.0</span>
+</div>
+<button aria-label="Save to favorites" class="absolute top-4 right-4 w-9 h-9 bg-surface/90 backdrop-blur-md rounded-full flex items-center justify-center text-on-surface hover:text-tertiary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4 bg-primary/90 backdrop-blur-sm text-on-primary px-3 py-1.5 rounded-full text-label-sm font-semibold uppercase tracking-wider">
+          Estate
+        </div>
+</div>
+<div class="p-5 flex flex-col gap-2">
+<div class="flex justify-between items-start gap-4">
+<h2 class="text-title-lg text-on-surface font-headline-md leading-tight line-clamp-1">The Palm Estate</h2>
+<div class="text-right flex-shrink-0">
+<span class="text-title-lg text-tertiary-container font-semibold block">$850</span>
+<span class="text-label-sm text-on-surface-variant font-normal block">/ night</span>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant line-clamp-1">Central Diani Beach</p>
+<div class="flex items-center gap-4 mt-2 pt-4 border-t border-surface-variant/50">
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">bed</span>
+<span class="text-label-sm">6 Beds</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">shower</span>
+<span class="text-label-sm">6.5 Baths</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span class="text-label-sm">12 Guests</span>
+</div>
+</div>
+</div>
+</article>
+<!-- End of results indicator -->
+<div class="py-8 text-center flex flex-col items-center justify-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">check_circle</span>
+</div>
+<p class="text-label-md text-on-surface-variant">You've seen all 24 villas in Diani.</p>
+</div>
+</div>
+<!-- Floating Map/Filters Button (Mobile centered bottom) -->
+<div class="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none w-full px-4 flex justify-center">
+<button class="pointer-events-auto bg-primary text-on-primary px-6 py-3 rounded-full shadow-[0_8px_32px_rgba(0,30,64,0.3)] font-label-md flex items-center gap-2 hover:bg-primary/90 transition-all active:scale-95" id="floating-filter-btn">
+<span class="material-symbols-outlined text-[20px]">map</span>
+      Map &amp; Filters
+    </button>
+</div>
+<style>
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<script>
+    // Simple micro-interaction for favorite buttons
+    document.querySelectorAll('button[aria-label="Save to favorites"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const icon = btn.querySelector('span');
+        const isFilled = icon.style.fontVariationSettings.includes("'FILL' 1");
+        
+        if (isFilled) {
+          icon.style.fontVariationSettings = "'FILL' 0";
+          icon.classList.remove('text-tertiary-container');
+          icon.classList.add('text-on-surface');
+        } else {
+          icon.style.fontVariationSettings = "'FILL' 1";
+          icon.classList.remove('text-on-surface');
+          icon.classList.add('text-tertiary-container');
+          
+          // Little pop animation
+          icon.style.transform = 'scale(1.2)';
+          setTimeout(() => {
+            icon.style.transform = 'scale(1)';
+          }, 150);
+        }
+      });
+    });
+
+    // Hide floating button on scroll down, show on scroll up
+    let lastScrollY = window.scrollY;
+    const filterBtn = document.getElementById('floating-filter-btn');
+    
+    window.addEventListener('scroll', () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down
+        filterBtn.style.transform = 'translateY(100px)';
+        filterBtn.style.opacity = '0';
+      } else {
+        // Scrolling up
+        filterBtn.style.transform = 'translateY(0)';
+        filterBtn.style.opacity = '1';
+      }
+      lastScrollY = currentScrollY;
+    }, { passive: true });
+  </script>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-primary font-semibold"><div class="flex justify-between items-center h-20 px-6"><a class="flex flex-col items-center gap-1 text-on-surface-variant transition-colors" data-path="explore" href="#"><span class="material-symbols-outlined">explore</span><span class="text-label-sm font-label-sm">Explore</span></a><a class="flex flex-col items-center gap-1 text-on-surface-variant transition-colors" data-path="saved" href="#"><span class="material-symbols-outlined">favorite</span><span class="text-label-sm font-label-sm">Saved</span></a><a class="flex flex-col items-center gap-1 text-on-surface-variant transition-colors" data-path="my-trips" href="#"><span class="material-symbols-outlined">luggage</span><span class="text-label-sm font-label-sm">Trips</span></a><a class="flex flex-col items-center gap-1 text-on-surface-variant transition-colors" data-path="profile" href="#"><span class="material-symbols-outlined">account_circle</span><span class="text-label-sm font-label-sm">Profile</span></a></div></nav>
+
+</body></html>
