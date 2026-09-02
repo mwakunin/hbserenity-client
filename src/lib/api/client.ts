@@ -99,3 +99,30 @@ export function apiSend<T>(
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 }
+
+/**
+ * The signed-in user, or null.
+ *
+ * Better Auth's own endpoint, which is not in the generated schema — the
+ * OpenAPI document describes the domain API, and `/api/auth/*` is mounted
+ * ahead of it by the auth handler. So this shape is written out rather than
+ * derived, and it is the one place in this app where that is true.
+ *
+ * Answers 200 with a null body when there is no session, so an anonymous
+ * caller is not an error.
+ */
+export interface SessionUser {
+  id: string;
+  name: string;
+  email: string;
+  role: "guest" | "host" | "admin";
+}
+
+export async function getSessionUser(): Promise<SessionUser | null> {
+  const body = await request<{ user?: SessionUser | null } | null>(
+    "/api/auth/get-session",
+    { authenticated: true },
+  );
+
+  return body?.user ?? null;
+}

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getAttention } from "@/app/admin/payments/actions";
 import { AttentionList } from "@/components/admin/attention-list";
 import { ApiError } from "@/lib/api/client";
+import { requireAdmin } from "@/lib/session";
 
 export const metadata = { title: "Payments" };
 
@@ -14,6 +15,8 @@ export const metadata = { title: "Payments" };
  * Whatever the sweep cannot resolve ends up here.
  */
 export default async function PaymentsPage() {
+  await requireAdmin("/admin/payments");
+
   let attention;
   try {
     attention = await getAttention();

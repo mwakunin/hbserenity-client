@@ -7,11 +7,14 @@ import { PhotoManager } from "@/components/admin/photo-manager";
 import { PropertyForm } from "@/components/admin/property-form";
 import { RateManager } from "@/components/admin/rate-manager";
 import { ApiError, apiGet } from "@/lib/api/client";
+import { requireAdmin } from "@/lib/session";
 
 export const metadata = { title: "Edit listing" };
 
 export default async function EditPropertyPage({ params }: PageProps<"/admin/properties/[id]">) {
   const { id } = await params;
+
+  await requireAdmin(`/admin/properties/${id}`);
 
   let property;
   try {
@@ -20,14 +23,20 @@ export default async function EditPropertyPage({ params }: PageProps<"/admin/pro
     property = await apiGet<"/properties/{id}">(`/properties/${id}`, { authenticated: true });
   }
   catch (error) {
-    if (error instanceof ApiError && error.status === 401)
+    // 403 must not fall through to `throw`: a revoked admin session would
+    // surface as a crash rather than as a sign-in prompt.
+    if (error instanceof ApiError && (error.status === 401 || error.status === 403))
       redirect(`/sign-in?next=${encodeURIComponent(`/admin/properties/${id}`)}`);
     if (error instanceof ApiError && error.status === 404)
       notFound();
     throw error;
   }
 
-  const rates = await listRates(id).catch(() => ({ data: [] }));
+  // Not `.catch(() => ({ data: [] }))`. An empty list and a failed request
+  // look identical on the page, so a proxy or auth failure would read as "no
+  // seasonal rates" — and a host could then set a season that already exists,
+  // or believe a Christmas price they entered had not saved. Let it raise.
+  const rates = await listRates(id);
 
   return (
     <div className="px-4 py-6">

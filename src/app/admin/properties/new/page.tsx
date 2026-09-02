@@ -1,10 +1,13 @@
 import Link from "next/link";
 
 import { PropertyForm } from "@/components/admin/property-form";
+import { requireAdmin } from "@/lib/session";
 
 export const metadata = { title: "New listing" };
 
-export default function NewPropertyPage() {
+export default async function NewPropertyPage() {
+  await requireAdmin("/admin/properties/new");
+
   return (
     <div className="px-4 py-6">
       <Link href="/admin/properties" className="text-xs text-primary underline">

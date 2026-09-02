@@ -5,10 +5,19 @@ import { QueryProvider } from "@/components/providers/query-provider";
 /**
  * The host's shell, deliberately separate from the guest site.
  *
- * Everything under /admin is host-only. The API enforces that itself —
- * `requireRole("admin")` on each route — so this layout is presentation, not
- * a security boundary. Treat it as chrome; never as the thing keeping a guest
- * out of the dashboard.
+ * Everything under /admin is host-only, and none of that is enforced here.
+ * The API enforces it — `requireRole("admin")` on every route — and each page
+ * calls `requireAdmin()` so a caller with no business here gets a redirect
+ * rather than an unhandled 403 from whichever fetch happens to run first.
+ *
+ * The check is deliberately NOT in this layout, which is where it looks like
+ * it belongs. Next's authentication guide is explicit that layouts do not
+ * re-render on client-side navigation, so it would not run when moving
+ * between /admin routes, and that a layout "does not control whether the rest
+ * of the route renders" — segments render regardless and still reach the RSC
+ * payload. A guard here would look like a boundary without being one.
+ *
+ * Treat this as chrome; never as the thing keeping a guest out.
  */
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (

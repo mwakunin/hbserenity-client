@@ -36,14 +36,20 @@ export async function getQuote(input: z.infer<typeof dateRange>) {
   );
 }
 
-export async function getAvailability(input: {
-  propertyId: string;
-  from: string;
-  to: string;
-}) {
-  const search = new URLSearchParams({ from: input.from, to: input.to });
+const availabilityWindow = z.object({
+  propertyId: z.uuid(),
+  from: z.iso.date(),
+  to: z.iso.date(),
+});
+
+export async function getAvailability(input: z.infer<typeof availabilityWindow>) {
+  // Parsed for the same reason `getQuote` is: the id is interpolated into an
+  // API path, and a server action's arguments are whatever the caller sends.
+  const { propertyId, from, to } = availabilityWindow.parse(input);
+
+  const search = new URLSearchParams({ from, to });
   return apiGet<"/properties/{id}/availability">(
-    `/properties/${input.propertyId}/availability?${search}`,
+    `/properties/${propertyId}/availability?${search}`,
   );
 }
 

@@ -7,6 +7,7 @@ import { DraftRecovery } from "@/components/admin/draft-recovery";
 
 import { ApiError, apiGet } from "@/lib/api/client";
 import { formatMoney, pluralise } from "@/lib/format";
+import { requireAdmin } from "@/lib/session";
 
 export const metadata = { title: "Properties" };
 
@@ -19,13 +20,15 @@ export const metadata = { title: "Properties" };
  * on the page rather than letting a host conclude they have lost one.
  */
 export default async function AdminPropertiesPage() {
+  await requireAdmin("/admin/properties");
+
   let properties: PropertySummary[];
   try {
     const page = await apiGet<"/properties">("/properties?limit=100");
     properties = page.data as unknown as PropertySummary[];
   }
   catch (error) {
-    if (error instanceof ApiError && error.status === 401)
+    if (error instanceof ApiError && (error.status === 401 || error.status === 403))
       redirect("/sign-in?next=%2Fadmin%2Fproperties");
     throw error;
   }

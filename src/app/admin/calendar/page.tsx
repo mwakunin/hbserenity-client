@@ -4,17 +4,20 @@ import type { PropertySummary } from "@/components/property-card";
 
 import { CalendarView } from "@/components/admin/calendar-view";
 import { ApiError, apiGet } from "@/lib/api/client";
+import { requireAdmin } from "@/lib/session";
 
 export const metadata = { title: "Calendar" };
 
 export default async function CalendarPage() {
+  await requireAdmin("/admin/calendar");
+
   let listings: PropertySummary[];
   try {
     const page = await apiGet<"/properties">("/properties?limit=100");
     listings = page.data as unknown as PropertySummary[];
   }
   catch (error) {
-    if (error instanceof ApiError && error.status === 401)
+    if (error instanceof ApiError && (error.status === 401 || error.status === 403))
       redirect("/sign-in?next=%2Fadmin%2Fcalendar");
     throw error;
   }

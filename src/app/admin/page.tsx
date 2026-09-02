@@ -7,10 +7,13 @@ import type { PropertySummary } from "@/components/property-card";
 import { ApiError, apiGet } from "@/lib/api/client";
 import { summarise, windowOf } from "@/lib/dashboard";
 import { formatDate, formatMoney, pluralise } from "@/lib/format";
+import { requireAdmin } from "@/lib/session";
 
 export const metadata = { title: "Host dashboard" };
 
 export default async function AdminDashboardPage() {
+  await requireAdmin("/admin");
+
   const window = windowOf(30);
 
   let bookings: BookingRow[];
@@ -27,7 +30,9 @@ export default async function AdminDashboardPage() {
     properties = propertyPage.data as unknown as PropertySummary[];
   }
   catch (error) {
-    if (error instanceof ApiError && error.status === 401)
+    // requireAdmin() has already run, so these are the API disagreeing with
+    // the session this app read — a stale or revoked cookie. Same answer.
+    if (error instanceof ApiError && (error.status === 401 || error.status === 403))
       redirect("/sign-in?next=%2Fadmin");
     throw error;
   }

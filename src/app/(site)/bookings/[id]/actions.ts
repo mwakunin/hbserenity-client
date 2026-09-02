@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 import { ApiError, apiGet, apiSend } from "@/lib/api/client";
 
@@ -13,6 +14,15 @@ import { ApiError, apiGet, apiSend } from "@/lib/api/client";
  * booking" rather than "ask and read the answer".
  */
 
+/**
+ * A server action is a public endpoint: its arguments come from whatever the
+ * caller sends, not from the page that renders the form. An unchecked id goes
+ * straight into an API path, so `../admin/payments/reconcile` or a value
+ * carrying `?` or `#` reshapes the request rather than merely failing it.
+ * Every id is parsed before it is interpolated.
+ */
+const bookingId = z.uuid();
+
 export type PayResult
   = | { status: "pushed"; customerMessage: string }
   /** A prompt is already on the handset, or the booking is no longer payable. */
@@ -21,12 +31,16 @@ export type PayResult
     | { status: "unauthenticated" };
 
 export async function payForBooking(
-  bookingId: string,
+  id: string,
   phoneNumber?: string,
 ): Promise<PayResult> {
+  const parsed = bookingId.safeParse(id);
+  if (!parsed.success)
+    return { status: "invalid", message: "That booking could not be found." };
+
   try {
     const res = await apiSend<{ customerMessage: string }>(
-      `/bookings/${bookingId}/pay`,
+      `/bookings/${parsed.data}/pay`,
       "POST",
       phoneNumber ? { phoneNumber } : {},
     );
@@ -66,8 +80,11 @@ export async function payForBooking(
 }
 
 /** The booking as it stands now — the only honest source of "did it work?". */
-export async function getBookingStatus(bookingId: string) {
-  return apiGet<"/bookings/{id}">(`/bookings/${bookingId}`, { authenticated: true });
+export async function getBookingStatus(id: string) {
+  return apiGet<"/bookings/{id}">(
+    `/bookings/${bookingId.parse(id)}`,
+    { authenticated: true },
+  );
 }
 
 // --- the guest's own actions on a booking ---------------------------------
@@ -80,12 +97,16 @@ export type CancelResult =
   | { status: "unauthenticated" };
 
 export async function cancelBooking(
-  bookingId: string,
+  id: string,
   reason?: string,
 ): Promise<CancelResult> {
+  const parsed = bookingId.safeParse(id);
+  if (!parsed.success)
+    return { status: "refused", message: "That booking could not be found." };
+
   try {
-    await apiSend(`/bookings/${bookingId}/cancel`, "POST", reason ? { reason } : {});
-    revalidatePath(`/bookings/${bookingId}`);
+    await apiSend(`/bookings/${parsed.data}/cancel`, "POST", reason ? { reason } : {});
+    revalidatePath(`/bookings/${parsed.data}`);
     revalidatePath("/bookings");
     return { status: "ok" };
   }
@@ -124,15 +145,19 @@ export type ReviewResult =
   | { status: "unauthenticated" };
 
 export async function submitReview(
-  bookingId: string,
+  id: string,
   input: { rating: number; comment?: string },
 ): Promise<ReviewResult> {
+  const parsed = bookingId.safeParse(id);
+  if (!parsed.success)
+    return { status: "refused", message: "That booking could not be found." };
+
   try {
-    await apiSend(`/bookings/${bookingId}/review`, "POST", {
+    await apiSend(`/bookings/${parsed.data}/review`, "POST", {
       rating: input.rating,
       ...(input.comment?.trim() ? { comment: input.comment.trim() } : {}),
     });
-    revalidatePath(`/bookings/${bookingId}`);
+    revalidatePath(`/bookings/${parsed.data}`);
     return { status: "ok" };
   }
   catch (error) {
