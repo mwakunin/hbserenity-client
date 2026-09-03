@@ -24,6 +24,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Checkout otherwise leaves the job's token in .git/config for
+          # everything that runs afterwards, and `pnpm install` runs lifecycle
+          # scripts — sharp's native build is explicitly allowed here. Nothing
+          # in this workflow talks to git over the network, and no dependency
+          # is fetched from a repository, so the credential has no use.
+          persist-credentials: false
 
       # Must come before setup-node: its pnpm cache needs pnpm on PATH.
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
@@ -52,6 +59,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Checkout otherwise leaves the job's token in .git/config for
+          # everything that runs afterwards, and `pnpm install` runs lifecycle
+          # scripts — sharp's native build is explicitly allowed here. Nothing
+          # in this workflow talks to git over the network, and no dependency
+          # is fetched from a repository, so the credential has no use.
+          persist-credentials: false
 
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
 

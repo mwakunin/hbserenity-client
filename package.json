@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "codegen": "openapi-typescript \"${OPENAPI_URL:-${API_ORIGIN:-http://localhost:9999}/doc}\" -o src/lib/api/schema.d.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

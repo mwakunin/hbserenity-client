@@ -26,6 +26,7 @@ describe("safeNext", () => {
     ["//evil.example/pay"],
     // Backslash, which some parsers normalise to `//`.
     ["/\\evil.example"],
+    ["/\\\\evil.example"],
     // Schemes that are not navigation at all.
     ["javascript:alert(1)"],
     ["data:text/html,<script>alert(1)</script>"],
@@ -34,6 +35,32 @@ describe("safeNext", () => {
     [""],
   ])("refuses %s", (input) => {
     expect(safeNext(input)).toBe("/");
+  });
+
+  /*
+   * URL parsing strips tab, newline and carriage return before resolving, so
+   * each of these passes a "does it start with //?" test and then resolves to
+   * `//evil.example` — off-site, from a value that looked like a path. This
+   * is why the check resolves against a base instead of matching prefixes.
+   */
+  it.each([
+    ["newline", "/\n/evil.example"],
+    ["carriage return", "/\r/evil.example"],
+    ["tab", "/\t/evil.example"],
+    ["a newline before a scheme", "/\nhttps://evil.example"],
+    ["several control characters", "/\n\t\r/evil.example"],
+    ["a control character mid-path", "/book\nings//evil.example"],
+  ])("refuses a %s that resolves off-site", (_label, input) => {
+    const resolved = new URL(safeNext(input), "https://hbserenity.test");
+
+    expect(resolved.origin).toBe("https://hbserenity.test");
+  });
+
+  // The value handed onward is the parser's, not the caller's, so nothing
+  // downstream can read it differently from how it was checked.
+  it("returns a re-serialised path rather than the input", () => {
+    expect(safeNext("/bookings/../admin")).toBe("/admin");
+    expect(safeNext("/properties?a=1#top")).toBe("/properties?a=1#top");
   });
 
   // searchParams hands over an array for a repeated key, and anything at all
