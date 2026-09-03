@@ -3,24 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-/**
- * Today, so a guest cannot search for a stay in the past.
- *
- * Assembled from local date parts rather than `toISOString()`, which is UTC:
- * in Nairobi, which is UTC+3 and where these guests are, every moment between
- * midnight and 03:00 reports yesterday. The date input would then offer a day
- * that has already gone as its earliest selectable one.
- */
-function today() {
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-}
-
-/** The only shape the API accepts: both ends, in order. */
-function isCompleteRange(from: string, to: string) {
-  return Boolean(from && to && to > from);
-}
+import { isCompleteRange, today } from "@/lib/search-filters";
 
 const TYPES = [
   { value: "", label: "All" },
