@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { listRates } from "@/app/admin/properties/actions";
+import { listAmenities, listRates } from "@/app/admin/properties/actions";
+import { AmenityPicker } from "@/components/admin/amenity-picker";
 import { DeleteProperty } from "@/components/admin/delete-property";
 import { PhotoManager } from "@/components/admin/photo-manager";
 import { PropertyForm } from "@/components/admin/property-form";
@@ -36,7 +37,7 @@ export default async function EditPropertyPage({ params }: PageProps<"/admin/pro
   // look identical on the page, so a proxy or auth failure would read as "no
   // seasonal rates" — and a host could then set a season that already exists,
   // or believe a Christmas price they entered had not saved. Let it raise.
-  const rates = await listRates(id);
+  const [rates, amenities] = await Promise.all([listRates(id), listAmenities()]);
 
   return (
     <div className="px-4 py-6">
@@ -83,6 +84,16 @@ export default async function EditPropertyPage({ params }: PageProps<"/admin/pro
 
       <section className="mt-8">
         <PhotoManager propertyId={property.id} images={property.images} />
+      </section>
+
+      <section className="mt-8">
+        <AmenityPicker
+          propertyId={property.id}
+          catalogue={amenities.data}
+          // What this listing already has, as ids — the detail response
+          // returns the full amenity records.
+          selected={property.amenities.map(a => a.id)}
+        />
       </section>
 
       <section className="mt-8">

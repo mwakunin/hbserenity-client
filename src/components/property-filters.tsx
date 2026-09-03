@@ -3,6 +3,9 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+/** Today, so a guest cannot search for a stay in the past. */
+const today = () => new Date().toISOString().slice(0, 10);
+
 const TYPES = [
   { value: "", label: "All" },
   { value: "villa", label: "Villas" },
@@ -24,6 +27,11 @@ const TYPES = [
  * each change is a server round trip. The chips and the select are not —
  * those are single deliberate clicks, and delaying them would just feel
  * broken.
+ *
+ * The dates are sent as a pair or not at all. The API refuses one without the
+ * other with a 422 rather than ignoring it, which is the right answer — half
+ * a range cannot say whether a listing is free — so this only navigates once
+ * both are set, and clearing either clears both.
  */
 export function PropertyFilters() {
   const router = useRouter();
@@ -34,6 +42,16 @@ export function PropertyFilters() {
   const [county, setCounty] = useState(params.get("county") ?? "");
   const type = params.get("propertyType") ?? "";
   const guests = params.get("minGuests") ?? "";
+  /*
+   * Held locally, not read back off the URL.
+   *
+   * A half-set range never reaches the URL, so a check-in read from `params`
+   * would be blank the instant it was picked — the field would appear to
+   * reject the date. These keep what the guest has chosen; the URL gets it
+   * once both ends are set.
+   */
+  const [checkIn, setCheckIn] = useState(params.get("checkIn") ?? "");
+  const [checkOut, setCheckOut] = useState(params.get("checkOut") ?? "");
 
   // Memoised on `params` so the debounce below can depend on it without the
   // timer being torn down and restarted on every render.
@@ -49,6 +67,23 @@ export function PropertyFilters() {
     next.delete("page");
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }, [params, pathname, router]);
+
+  /*
+   * Dates travel together.
+   *
+   * A half-set range is kept in the inputs but never put in the URL: the API
+   * answers 422 to one date without the other — deliberately, since ignoring
+   * it would show dates that are taken as available — and a guest picking a
+   * check-in has not asked for anything yet. Clearing either clears both, so
+   * the URL never carries a range the API would refuse.
+   */
+  const applyDates = useCallback((from: string, to: string) => {
+    const complete = Boolean(from && to && to > from);
+    apply({
+      checkIn: complete ? from : "",
+      checkOut: complete ? to : "",
+    });
+  }, [apply]);
 
   /*
    * Debounced: typing "Diani" is five keystrokes and should be one request.
@@ -103,6 +138,46 @@ export function PropertyFilters() {
           </button>
         ))}
       </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <label className="text-xs text-on-surface-variant">
+          Check in
+          <input
+            type="date"
+            value={checkIn}
+            min={today()}
+            onChange={(e) => { setCheckIn(e.target.value); applyDates(e.target.value, checkOut); }}
+            className="mt-1 w-full rounded-md border border-outline-variant bg-surface px-2 py-1.5 text-sm text-on-surface"
+          />
+        </label>
+        <label className="text-xs text-on-surface-variant">
+          Check out
+          <input
+            type="date"
+            value={checkOut}
+            min={checkIn || today()}
+            onChange={(e) => { setCheckOut(e.target.value); applyDates(checkIn, e.target.value); }}
+            className="mt-1 w-full rounded-md border border-outline-variant bg-surface px-2 py-1.5 text-sm text-on-surface"
+          />
+        </label>
+      </div>
+
+      {(checkIn || checkOut) && (
+        <div className="flex items-center justify-between text-[11px] text-on-surface-variant">
+          <span>
+            {checkIn && checkOut
+              ? "Showing homes free for these dates."
+              : "Pick both dates to filter by availability."}
+          </span>
+          <button
+            type="button"
+            onClick={() => { setCheckIn(""); setCheckOut(""); applyDates("", ""); }}
+            className="text-primary underline"
+          >
+            Clear dates
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-2">
         <label className="text-xs text-on-surface-variant">

@@ -218,3 +218,30 @@ export async function deleteRate(propertyId: string, rateId: string) {
     return fromApiError(error);
   }
 }
+
+// --- amenities ------------------------------------------------------------
+
+/** The catalogue every listing picks from. Public, so no session is needed. */
+export async function listAmenities() {
+  return apiGet<"/amenities">("/amenities", { revalidate: 300 });
+}
+
+/**
+ * Replace the amenities on a listing.
+ *
+ * A PUT of the complete set, which is what the API takes: unticking a box is
+ * expressed by leaving it out, so a re-submitted form is idempotent and there
+ * is no separate detach call to get wrong.
+ */
+export async function setAmenities(propertyId: string, amenityIds: string[]) {
+  try {
+    await apiSend(`/properties/${propertyId}/amenities`, "PUT", { amenityIds });
+    revalidatePath(`/admin/properties/${propertyId}`);
+    // The guest-facing listing renders these, so it goes stale too.
+    revalidatePath(`/properties/${propertyId}`);
+    return { status: "ok" as const };
+  }
+  catch (error) {
+    return fromApiError(error);
+  }
+}

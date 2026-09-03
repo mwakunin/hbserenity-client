@@ -90,10 +90,10 @@ export function apiGet<P extends keyof paths & string>(
   return request<GetResponse<P>>(path, options);
 }
 
-/** POST/PATCH/DELETE. Always authenticated — nothing mutates anonymously. */
+/** POST/PUT/PATCH/DELETE. Always authenticated — nothing mutates anonymously. */
 export function apiSend<T>(
   path: string,
-  method: "POST" | "PATCH" | "DELETE",
+  method: "POST" | "PUT" | "PATCH" | "DELETE",
   body?: unknown,
   options?: ApiFetchOptions,
 ): Promise<T> {

@@ -9,7 +9,18 @@ import { pluralise } from "@/lib/format";
 export const metadata = { title: "Search stays" };
 
 /** Only the filters the API actually accepts. */
-const FILTERS = ["county", "town", "propertyType", "minGuests", "maxPriceCents", "page"] as const;
+const FILTERS = [
+  "county",
+  "town",
+  "propertyType",
+  "minGuests",
+  "maxPriceCents",
+  // Availability. The API refuses one without the other, so the filter UI
+  // only ever sets them as a pair.
+  "checkIn",
+  "checkOut",
+  "page",
+] as const;
 
 /**
  * A filter this page will actually send.
