@@ -5,7 +5,7 @@ import type { BookingRow } from "@/lib/dashboard";
 import type { PropertySummary } from "@/components/property-card";
 
 import { ApiError, apiGet } from "@/lib/api/client";
-import { summarise, windowOf } from "@/lib/dashboard";
+import { recentWindow, summarise, windowOf } from "@/lib/dashboard";
 import { formatDate, formatMoney, pluralise } from "@/lib/format";
 import { requireAdmin } from "@/lib/session";
 
@@ -15,19 +15,31 @@ export default async function AdminDashboardPage() {
   await requireAdmin("/admin");
 
   const window = windowOf(30);
+  // Money is a question about the past; occupancy is a question about the
+  // future. One window for both would report next month's revenue as zero.
+  const earned = recentWindow(30);
 
   let bookings: BookingRow[];
   let properties: PropertySummary[];
+  let takings: { receivedCents: number; refundedCents: number; netCents: number };
   try {
     // An admin session sees every booking; a guest would see only their own,
     // so a non-admin landing here gets a truthful but empty dashboard rather
     // than someone else's data.
-    const [bookingPage, propertyPage] = await Promise.all([
+    const [bookingPage, propertyPage, paymentPage] = await Promise.all([
       apiGet<"/bookings">("/bookings?limit=100", { authenticated: true }),
       apiGet<"/properties">("/properties?limit=100"),
+      // `limit=1` because only the totals are wanted here: they are computed
+      // over every matching attempt, not over the page, so asking for a page
+      // of rows would be transfer for nothing.
+      apiGet<"/admin/payments">(
+        `/admin/payments?from=${earned.from}&to=${earned.to}&limit=1`,
+        { authenticated: true },
+      ),
     ]);
     bookings = bookingPage.data;
     properties = propertyPage.data;
+    takings = paymentPage.totals;
   }
   catch (error) {
     // requireAdmin() has already run, so these are the API disagreeing with
@@ -47,7 +59,8 @@ export default async function AdminDashboardPage() {
       </p>
       <h1 className="mt-1 font-headline text-2xl text-on-surface">Dashboard</h1>
       <p className="mt-2 text-sm text-on-surface-variant">
-        The next 30 days across your published listings.
+        The next 30 days across your published listings, and what came in over
+        the last 30.
       </p>
 
       <div className="mt-5 grid gap-3">
@@ -66,15 +79,14 @@ export default async function AdminDashboardPage() {
           }
         />
         <Stat
-          label="Booked value"
-          // One entry per currency. Summing across them would produce a
-          // number that is not money in any of them.
-          value={stats.bookedValue.length === 0
-            ? formatMoney(0, "KES")
-            : stats.bookedValue.map(v => formatMoney(v.cents, v.currency)).join(" + ")}
-          // Deliberately not "revenue": these are agreed booking totals, not
-          // money M-Pesa has settled.
-          note="agreed totals for stays starting in this window"
+          label="Revenue"
+          // Money M-Pesa actually settled, net of refunds — not agreed booking
+          // totals, which is what this tile used to show and why it was called
+          // "Booked value". The API counts `success` attempts only.
+          value={formatMoney(takings.netCents, "KES")}
+          note={takings.refundedCents > 0
+            ? `last 30 days, after ${formatMoney(takings.refundedCents, "KES")} refunded`
+            : "received in the last 30 days"}
         />
       </div>
 
@@ -115,6 +127,9 @@ export default async function AdminDashboardPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-on-surface">
+                            {booking.guestName}
+                          </p>
+                          <p className="mt-0.5 truncate text-xs text-on-surface-variant">
                             {byId.get(booking.propertyId)?.title ?? "Unlisted property"}
                           </p>
                           <p className="mt-0.5 text-xs text-on-surface-variant">
@@ -136,15 +151,13 @@ export default async function AdminDashboardPage() {
             )}
 
         {/*
-          The design lists a guest name against each booking. `GET /bookings`
-          returns `guestId` and nothing else about the guest, and there is no
-          endpoint to resolve one, so the property is shown instead. Naming
-          them needs a join on the API side.
+          `GET /bookings` carries `guestName` now, so the design's "who booked"
+          is answerable without a request per row. Occupancy still counts only
+          active listings: the denominator is what a guest could have booked,
+          and a draft was never on sale.
         */}
         <p className="mt-3 text-[11px] leading-relaxed text-on-surface-variant">
-          Guest names are not shown: the bookings endpoint returns a guest id
-          only. Occupancy covers published listings, since drafts are not
-          returned by the API.
+          Occupancy counts published listings only — a draft was never on sale.
         </p>
       </section>
     </div>

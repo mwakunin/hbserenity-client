@@ -5,7 +5,6 @@ import { useState } from "react";
 
 import { deleteProperty } from "@/app/admin/properties/actions";
 import { Button } from "@/components/ui/button";
-import { forgetDraft } from "@/lib/recent-drafts";
 
 /**
  * Removing a listing.
@@ -37,7 +36,6 @@ export function DeleteProperty({ propertyId, title }: { propertyId: string; titl
         return;
       }
 
-      forgetDraft(propertyId);
       router.push("/admin/properties");
     }
     catch {
