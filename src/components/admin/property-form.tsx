@@ -7,7 +7,6 @@ import type { PropertyInput } from "@/lib/schemas/property";
 
 import { createProperty, updateProperty } from "@/app/admin/properties/actions";
 import { Button } from "@/components/ui/button";
-import { rememberDraft } from "@/lib/recent-drafts";
 
 const TYPES = ["apartment", "house", "villa", "cottage", "studio", "guesthouse"] as const;
 
@@ -141,12 +140,8 @@ export function PropertyForm({
         return;
       }
 
-      // A new listing defaults to `draft`, and the API's list endpoint returns
-      // active listings only — to anyone. Without the id it would be
-      // unreachable, so it is kept locally and the host is taken straight to it.
-      if (payload.status !== "active")
-        rememberDraft({ id: result.id, title: payload.title });
-
+      // A new listing defaults to `draft`, and the properties list now asks
+      // for every status, so it is reachable there as well as here.
       router.push(`/admin/properties/${result.id}`);
     }
     catch {

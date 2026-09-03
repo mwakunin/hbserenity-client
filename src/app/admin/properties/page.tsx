@@ -3,8 +3,6 @@ import { redirect } from "next/navigation";
 
 import type { PropertySummary } from "@/components/property-card";
 
-import { DraftRecovery } from "@/components/admin/draft-recovery";
-
 import { ApiError, apiGet } from "@/lib/api/client";
 import { formatMoney, pluralise } from "@/lib/format";
 import { requireAdmin } from "@/lib/session";
@@ -12,20 +10,64 @@ import { requireAdmin } from "@/lib/session";
 export const metadata = { title: "Properties" };
 
 /**
- * The host's listings.
+ * The host's listings — all of them.
  *
- * Shows what `GET /properties` returns, which is active listings only — the
- * handler filters on `status = "active"` regardless of who is asking. A draft
- * or deactivated listing therefore cannot appear here, which is worth stating
- * on the page rather than letting a host conclude they have lost one.
+ * `?status=all` is admin-only and ignored for anyone else, so this is the one
+ * place that asks for it. The default stays "active" even for an admin, which
+ * is what makes browsing the site as one show what a guest sees; seeing drafts
+ * has to be opt-in, and this page is the opt-in.
+ *
+ * Until the API grew that parameter a new listing appeared in no list at all,
+ * since `properties.status` defaults to `draft` — the id was the only way back
+ * to it. A localStorage bridge stood in for this and is now deleted.
  */
+/** The API's own ceiling — `limit` is capped at 100, so this cannot be raised. */
+const PAGE_SIZE = 100;
+
+/**
+ * Every listing, not the first hundred.
+ *
+ * This is the host's index of their own work, so a silent truncation is the
+ * worst failure it could have: a listing that exists, is paid for, and simply
+ * is not on the page. Asking for a bigger page is not an option — the API
+ * caps `limit` at 100 and quietly clamps past that — so the remaining pages
+ * are fetched, concurrently and bounded by the count the first page reports.
+ */
+async function loadAllProperties() {
+  const first = await apiGet<"/properties">(
+    `/properties?status=all&limit=${PAGE_SIZE}`,
+    { authenticated: true },
+  );
+
+  if (first.meta.totalPages <= 1)
+    return first;
+
+  const rest = await Promise.all(
+    Array.from({ length: first.meta.totalPages - 1 }, (_, i) =>
+      apiGet<"/properties">(
+        `/properties?status=all&limit=${PAGE_SIZE}&page=${i + 2}`,
+        { authenticated: true },
+      )),
+  );
+
+  return {
+    data: [...first.data, ...rest.flatMap(r => r.data)],
+    meta: first.meta,
+  };
+}
+
 export default async function AdminPropertiesPage() {
   await requireAdmin("/admin/properties");
 
   let properties: PropertySummary[];
+  let total: number;
   try {
-    const page = await apiGet<"/properties">("/properties?limit=100");
+    const page = await loadAllProperties();
     properties = page.data;
+    // From the API, not from `properties.length`: they agree only when
+    // everything was loaded, and that is the assumption worth stating rather
+    // than re-deriving.
+    total = page.meta.total;
   }
   catch (error) {
     if (error instanceof ApiError && (error.status === 401 || error.status === 403))
@@ -39,7 +81,7 @@ export default async function AdminPropertiesPage() {
         <div>
           <h1 className="font-headline text-2xl text-on-surface">Properties</h1>
           <p className="mt-1 text-xs text-on-surface-variant">
-            {pluralise(properties.length, "published listing")}
+            {pluralise(total, "listing")}
           </p>
         </div>
         <Link
@@ -58,7 +100,19 @@ export default async function AdminPropertiesPage() {
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-on-surface">{p.title}</p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-medium text-on-surface">{p.title}</p>
+                  {/*
+                    Draft and inactive are the reason this list asks for every
+                    status, so they have to be legible at a glance — an
+                    unlabelled draft looks published.
+                  */}
+                  {p.status !== "active" && (
+                    <span className="shrink-0 rounded-full bg-secondary-container px-2 py-0.5 text-[10px] uppercase tracking-wide text-on-secondary-container">
+                      {p.status}
+                    </span>
+                  )}
+                </div>
                 <p className="mt-0.5 text-xs text-on-surface-variant">
                   {p.town}
                   ,
@@ -84,16 +138,9 @@ export default async function AdminPropertiesPage() {
 
       {properties.length === 0 && (
         <p className="mt-4 rounded-lg bg-surface-container p-5 text-center text-sm text-on-surface-variant">
-          No published listings.
+          No listings yet.
         </p>
       )}
-
-      <DraftRecovery activeIds={properties.map(p => p.id)} />
-
-      <p className="mt-4 text-[11px] leading-relaxed text-on-surface-variant">
-        Drafts and deactivated listings are not returned by the API, to any
-        caller — only drafts created on this device can be listed above.
-      </p>
     </div>
   );
 }
