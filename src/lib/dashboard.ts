@@ -34,14 +34,52 @@ export interface DashboardWindow {
   to: string;
 }
 
+/**
+ * Where the properties are, and therefore what "today" means here.
+ *
+ * The same zone the API reduces its own date questions to. Read in UTC, the
+ * first three hours of every Kenyan day report yesterday — long enough for a
+ * dashboard loaded over morning coffee to count a stay that starts today as
+ * still upcoming, and for the revenue window to be a day out of step with the
+ * one the API resolves.
+ */
+const BUSINESS_TIME_ZONE = "Africa/Nairobi";
+
+const dayParts = new Intl.DateTimeFormat("en-US", {
+  timeZone: BUSINESS_TIME_ZONE,
+  // Pinned so the parts are Gregorian in Latin digits whatever the host's
+  // locale defaults are.
+  calendar: "gregory",
+  numberingSystem: "latn",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/**
+ * Today in Nairobi, as `YYYY-MM-DD`.
+ *
+ * Assembled from typed parts rather than a formatted string: en-CA happens to
+ * print this shape, but on a build whose ICU data lacks it the call silently
+ * falls back to something like 9/3/2026, which still compares against a date
+ * column and is always wrong.
+ */
+function todayInBusinessZone(): string {
+  const parts = dayParts.formatToParts(new Date());
+  const value = (type: string) => parts.find(p => p.type === type)?.value ?? "";
+  return `${value("year")}-${value("month")}-${value("day")}`;
+}
+
+/** `delta` days from a calendar day. Date-only, so no zone is involved. */
+function shiftDay(day: string, delta: number): string {
+  const at = new Date(`${day}T00:00:00Z`);
+  at.setUTCDate(at.getUTCDate() + delta);
+  return at.toISOString().slice(0, 10);
+}
+
 export function windowOf(days: number): DashboardWindow {
-  const now = new Date();
-  const end = new Date(now);
-  end.setUTCDate(end.getUTCDate() + days);
-  return {
-    from: now.toISOString().slice(0, 10),
-    to: end.toISOString().slice(0, 10),
-  };
+  const from = todayInBusinessZone();
+  return { from, to: shiftDay(from, days) };
 }
 
 /** Nights of a booking that fall inside the window, half-open like the API. */
@@ -86,20 +124,15 @@ export function summarise(
  * past, and occupancy is a question about the future. Reusing one window for
  * both would have reported next month's revenue, which is always zero.
  *
- * The dates are UTC while the API resolves the window in Nairobi, so between
- * midnight and 03:00 local the range is a day behind. It shifts a rolling
- * total by one day at the edge and never double-counts, which is worth less
- * than a timezone dependency here.
+ * Both bounds are Nairobi calendar days, which is how the API reads them.
  */
 export function recentWindow(days: number): DashboardWindow {
-  const today = new Date();
-  const start = new Date(today);
-  start.setUTCDate(start.getUTCDate() - (days - 1));
-  const tomorrow = new Date(today);
-  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  const today = todayInBusinessZone();
 
+  // Half-open and inclusive of today: `to` is tomorrow, so money taken this
+  // morning counts. The API resolves both bounds in this same zone.
   return {
-    from: start.toISOString().slice(0, 10),
-    to: tomorrow.toISOString().slice(0, 10),
+    from: shiftDay(today, -(days - 1)),
+    to: shiftDay(today, 1),
   };
 }

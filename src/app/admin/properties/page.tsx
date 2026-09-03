@@ -21,13 +21,53 @@ export const metadata = { title: "Properties" };
  * since `properties.status` defaults to `draft` — the id was the only way back
  * to it. A localStorage bridge stood in for this and is now deleted.
  */
+/** The API's own ceiling — `limit` is capped at 100, so this cannot be raised. */
+const PAGE_SIZE = 100;
+
+/**
+ * Every listing, not the first hundred.
+ *
+ * This is the host's index of their own work, so a silent truncation is the
+ * worst failure it could have: a listing that exists, is paid for, and simply
+ * is not on the page. Asking for a bigger page is not an option — the API
+ * caps `limit` at 100 and quietly clamps past that — so the remaining pages
+ * are fetched, concurrently and bounded by the count the first page reports.
+ */
+async function loadAllProperties() {
+  const first = await apiGet<"/properties">(
+    `/properties?status=all&limit=${PAGE_SIZE}`,
+    { authenticated: true },
+  );
+
+  if (first.meta.totalPages <= 1)
+    return first;
+
+  const rest = await Promise.all(
+    Array.from({ length: first.meta.totalPages - 1 }, (_, i) =>
+      apiGet<"/properties">(
+        `/properties?status=all&limit=${PAGE_SIZE}&page=${i + 2}`,
+        { authenticated: true },
+      )),
+  );
+
+  return {
+    data: [...first.data, ...rest.flatMap(r => r.data)],
+    meta: first.meta,
+  };
+}
+
 export default async function AdminPropertiesPage() {
   await requireAdmin("/admin/properties");
 
   let properties: PropertySummary[];
+  let total: number;
   try {
-    const page = await apiGet<"/properties">("/properties?status=all&limit=100", { authenticated: true });
+    const page = await loadAllProperties();
     properties = page.data;
+    // From the API, not from `properties.length`: they agree only when
+    // everything was loaded, and that is the assumption worth stating rather
+    // than re-deriving.
+    total = page.meta.total;
   }
   catch (error) {
     if (error instanceof ApiError && (error.status === 401 || error.status === 403))
@@ -41,7 +81,7 @@ export default async function AdminPropertiesPage() {
         <div>
           <h1 className="font-headline text-2xl text-on-surface">Properties</h1>
           <p className="mt-1 text-xs text-on-surface-variant">
-            {pluralise(properties.length, "listing")}
+            {pluralise(total, "listing")}
           </p>
         </div>
         <Link
